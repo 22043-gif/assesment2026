@@ -16,16 +16,20 @@ TRADE_DISCOUNT_RATE = 0.1
 GST = 0.15
 
 BATHROOM_UPGRADE_A = 2500
+BATHROOM_DEFAULT_D = 0
 
 KITCHEN_UPGRADE_A = 2000
 KITCHEN_UPGRADE_B = 3500
 KITCHEN_UPGRADE_C = 6000
+KITCHEN_DEFAULT_D = 0
 
 LIVINGROOM_UPGRADE_A = 250
 LIVINGROOM_UPGRADE_B = 250
-LIVINGROOM_UPGRADE_C = 2500
+LIVINGROOM_DEFAULT_D = 0
 
-BEDROOM_UPGRADE_A = 1800
+HEATPUMP_LIVINGROOM = 2500
+HEATPUMP_BEDROOM = 1800
+HEATPUMP_DEFAULT_D = 0
 
 ONE_G_SOCKET_PRICE = 40
 TWO_G_SOCKET_PRICE = 50
@@ -76,32 +80,73 @@ def build_details():
     """
     This function will get user input on the details of what they want in their design
      """
+    print("Here are the upgrades available:")
+    print("Bathroom - \n    Basic: no added cost \n    Upgrade A: an aditional $2500")
+    bathroom_option = input("    Please select default (d) or upgrade (a): ")
+    print("Kitchen - \n    Basic: no added cost \n    Upgrade A: an aditional $2000 \n    Upgrade B: an aditional $3500 \n    Upgrade C: an aditional $6000")
+    kitchen_option = input("    Please select default (d) or upgrade (a) or (b) or (c): ")
+    print("Living Room - \n    Basic: no added cost \n    Upgrade A: an aditional $250 \n    Upgrade B: an aditional $250")
+    livingroom_option = input("    Please select default (d) or upgrade (a) or (b): ")
+    print("Heat Pumps - \n    Living Room: an aditional $2500 \n    Bedroom: an aditional $1800")
+    heatpump_option = input("    Please select none (d), living room (a), bedroom (b) or both (c): ")
+
+    prices(bathroom_option, kitchen_option, livingroom_option, heatpump_option)
+
+
+def prices(bathroom_option, kitchen_option, livingroom_option, heatpump_option):
+    if bathroom_option == "a":
+        bathroom_cost = BATHROOM_UPGRADE_A
+    elif bathroom_option == "d":
+        bathroom_cost = BATHROOM_DEFAULT_D
+
+    if kitchen_option == "a":
+        kitchen_cost = KITCHEN_UPGRADE_A
+    elif kitchen_option == "b":
+        kitchen_cost = KITCHEN_UPGRADE_B
+    elif kitchen_option == "c":
+        kitchen_cost = KITCHEN_UPGRADE_C
+    elif kitchen_option == "d":
+        kitchen_cost = KITCHEN_DEFAULT_D
+
+    if livingroom_option == "a":
+        livingroom_cost = LIVINGROOM_UPGRADE_A
+    elif livingroom_option == "b":
+        livingroom_cost = LIVINGROOM_UPGRADE_B
+    elif livingroom_option == "d":
+        livingroom_cost = LIVINGROOM_DEFAULT_D
+
+    if heatpump_option == "a":
+        heatpump_cost = HEATPUMP_LIVINGROOM
+    elif heatpump_option == "b":
+        heatpump_cost = HEATPUMP_BEDROOM
+    elif heatpump_option == "c":
+        heatpump_cost = HEATPUMP_LIVINGROOM + HEATPUMP_BEDROOM
+    elif heatpump_option == "d":
+        heatpump_cost = HEATPUMP_DEFAULT_D
+
+    statements(bathroom_option, bathroom_cost, kitchen_option, kitchen_cost, livingroom_option, livingroom_cost, heatpump_option, heatpump_cost)
+
+
+
+def statements(bathroom_option, bathroom_cost, kitchen_option, kitchen_cost, livingroom_option, livingroom_cost, heatpump_option, heatpump_cost):
+    print("Here is your personilized quotation based on your selections:")
+    print (f"Basic Kit: ${BASIC_KIT}")
+    print (f"Additional Upgrades:")
+    if bathroom_cost > 0:
+        print(f"You selected Option {bathroom_option}")
+        print(f"   Bathroom:${bathroom_cost}")
+    if kitchen_cost > 0:
+        print(f"You selected Option {kitchen_option}")
+        print(f"   Kitchen: ${kitchen_cost}")
+    if livingroom_cost > 0:
+        print(f"You selected Option {livingroom_option}")
+        print(f"   Living Room: ${livingroom_cost}")
+    if heatpump_cost > 0:
+        print(f"You selected Option {heatpump_option}")
+        print(f"   Heat Pumps: ${heatpump_cost}")
+    if bathroom_cost == 0 and kitchen_cost == 0 and livingroom_cost == 0 and heatpump_cost == 0:
+        print("   No additional upgrades selected")
     
-    upgrade_loop = True
-    upgrade = input("Would you like to add upgrades to the basic kit (yes/no): ")
-    while upgrade_loop:
-        if upgrade == "yes":
-            print("Here are the upgrades available:")
-            print("basic: no added \n" + "costupgrade:")
 
-            upgrade = input("Do you want to add another one?")
-        elif upgrade == "no":
-            print("No upgrades for you!")
-            upgrade_loop = False
-        else:
-            upgrade = input("Please enter yes or no")
-
-    
-    
-
-
-"""
-def calculations():
-This function will use input from build_details to calculate the total cost of the build
-build_details()
-put in class
-
-
- """
 
 build_details()
