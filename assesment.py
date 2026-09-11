@@ -40,11 +40,15 @@ NETWORK_POINT_PRICE = 50
 people = []
 
 class Person:
-    def __init__(self, name, phone, address, discount):
+    def __init__(self, name, phone, address, discount, bathroom_option, kitchen_option, livingroom_option, heatpump_option):
         self.name = name
         self.phone = int(phone)
         self.address = address
         self.discount = discount
+        self.bathroom_option = bathroom_option
+        self.kitchen_option = kitchen_option
+        self.livingroom_option = livingroom_option
+        self.heatpump_option = heatpump_option
 
     def introduce(self):
                 print(f"Hi, my name is {self.name}.")
@@ -70,11 +74,9 @@ def user_details():
             applied__loop = False
         else:
             print("Please enter yes or no")
-    
 
+        return(name, phone, address, trade_member)
 
-        new_person = Person(name, phone, address, trade_member)
-        new_person.introduce()
 
 def build_details():
     """
@@ -90,13 +92,24 @@ def build_details():
     print("Heat Pumps - \n    Living Room: an aditional $2500 \n    Bedroom: an aditional $1800")
     heatpump_option = input("    Please select none (d), living room (a), bedroom (b) or both (c): ")
 
-    prices(bathroom_option, kitchen_option, livingroom_option, heatpump_option)
+    return(bathroom_option, kitchen_option, livingroom_option, heatpump_option)
 
+def network_details():
+    add_socket = input("Would you like to add an addtional socket? (y/n)")
+    while add_socket != ("y") or ("n"):
+        if add_socket == ("y"):
+            add_socket = True
+        elif add_socket == ("n"):
+            add_socket = False
+        else:
+            add_socket = input("Would you like to add an addtional socket? (y/n)")         
+         
+"""
 
 def prices(bathroom_option, kitchen_option, livingroom_option, heatpump_option):
     if bathroom_option == "a":
         bathroom_cost = BATHROOM_UPGRADE_A
-    elif bathroom_option == "d":
+    else:
         bathroom_cost = BATHROOM_DEFAULT_D
 
     if kitchen_option == "a":
@@ -105,14 +118,14 @@ def prices(bathroom_option, kitchen_option, livingroom_option, heatpump_option):
         kitchen_cost = KITCHEN_UPGRADE_B
     elif kitchen_option == "c":
         kitchen_cost = KITCHEN_UPGRADE_C
-    elif kitchen_option == "d":
+    else:
         kitchen_cost = KITCHEN_DEFAULT_D
 
     if livingroom_option == "a":
         livingroom_cost = LIVINGROOM_UPGRADE_A
     elif livingroom_option == "b":
         livingroom_cost = LIVINGROOM_UPGRADE_B
-    elif livingroom_option == "d":
+    else:
         livingroom_cost = LIVINGROOM_DEFAULT_D
 
     if heatpump_option == "a":
@@ -121,11 +134,8 @@ def prices(bathroom_option, kitchen_option, livingroom_option, heatpump_option):
         heatpump_cost = HEATPUMP_BEDROOM
     elif heatpump_option == "c":
         heatpump_cost = HEATPUMP_LIVINGROOM + HEATPUMP_BEDROOM
-    elif heatpump_option == "d":
+    else:
         heatpump_cost = HEATPUMP_DEFAULT_D
-
-    statements(bathroom_option, bathroom_cost, kitchen_option, kitchen_cost, livingroom_option, livingroom_cost, heatpump_option, heatpump_cost)
-
 
 
 def statements(bathroom_option, bathroom_cost, kitchen_option, kitchen_cost, livingroom_option, livingroom_cost, heatpump_option, heatpump_cost):
@@ -147,6 +157,12 @@ def statements(bathroom_option, bathroom_cost, kitchen_option, kitchen_cost, liv
     if bathroom_cost == 0 and kitchen_cost == 0 and livingroom_cost == 0 and heatpump_cost == 0:
         print("   No additional upgrades selected")
     
+"""
+
+name, phone, address, trade_member = user_details()
+bathroom_option, kitchen_option, livingroom_option, heatpump_option = build_details()
+
+new_person = Person(name, phone, address, trade_member, bathroom_option, kitchen_option, livingroom_option, heatpump_option)
 
 
-build_details()
+introduce = new_person.introduce()
