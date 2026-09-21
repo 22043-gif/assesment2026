@@ -7,48 +7,86 @@
 
 #must add file
 
-#Constants
-from unicodedata import name
+import datetime 
 
+
+#----------
+#Constants
+#----------
 
 BASIC_KIT = 75000
 TRADE_DISCOUNT_RATE = 0.1
 GST = 0.15
 
-BATHROOM_UPGRADE_A = 2500
-BATHROOM_DEFAULT_D = 0
+PRICES = {
+    "bathroom": {"a": 2500.0, "d": 0.0},
+    "kitchen": {"a": 2000.0, "b": 3500.0, "c": 6000.0, "d": 0.0},
+    "livingroom": {"a": 250.0, "b": 250.0, "d": 0.0},
+    "heatpump_living": 2500.0,
+    "heatpump_bedroom": 1800.0,
+    "socket_1g": 40.0,
+    "socket_2g": 50.0,
+    "network_point": 50.0,
+    "network_switch": 100.0
+}
 
-KITCHEN_UPGRADE_A = 2000
-KITCHEN_UPGRADE_B = 3500
-KITCHEN_UPGRADE_C = 6000
-KITCHEN_DEFAULT_D = 0
 
-LIVINGROOM_UPGRADE_A = 250
-LIVINGROOM_UPGRADE_B = 250
-LIVINGROOM_DEFAULT_D = 0
-
-HEATPUMP_LIVINGROOM = 2500
-HEATPUMP_BEDROOM = 1800
-HEATPUMP_DEFAULT_D = 0
-
-ONE_G_SOCKET_PRICE = 40
-TWO_G_SOCKET_PRICE = 50
-NETWORK_SWITCH_PRICE = 100
-NETWORK_POINT_PRICE = 50
-
-#Dictoinaries
-people = []
+#----------
+#Classes
+#----------
 
 class Person:
-    def __init__(self, name, phone, address, discount, bathroom_option, kitchen_option, livingroom_option, heatpump_option):
+    """Stores cust details"""
+    def __init__(self, name, phone, address, is_trade):
         self.name = name
-        self.phone = int(phone)
+        self.phone = phone
         self.address = address
-        self.discount = discount
-        self.bathroom_option = bathroom_option
-        self.kitchen_option = kitchen_option
-        self.livingroom_option = livingroom_option
-        self.heatpump_option = heatpump_option
+        self.is_trade = is_trade
+
+class Quote:
+    """Handles option selections, pring calc and quote printing """
+    def __init__(self, customer: Person, bathroom_option, 
+                 kitchen_option, livingroom_option, heatpump_living, 
+                 heatpump_bedroom, socket_1g_count, socket_2g_count,
+                 network_points_count):
+
+        self.customer = customer
+        self.ref_number = self.generate_ref_number()
+        
+        self.bathroom_opt = bathroom_opt
+        self.kitchen_opt = kitchen_opt
+        self.living_opt = living_opt
+        
+        self.hp_living = hp_living
+        self.hp_bedroom = hp_bedroom
+        
+        self.socket_1g_count = socket_1g_count
+        self.socket_2g_count = socket_2g_count
+        self.network_points_count = network_points_count
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     def introduce(self):
                 print(f"Hi, my name is {self.name}.")
@@ -75,7 +113,8 @@ def user_details():
         else:
             print("Please enter yes or no")
 
-        return(name, phone, address, trade_member)
+
+    return(name, phone, address, trade_member)
 
 
 def build_details():
@@ -103,7 +142,8 @@ def network_details():
             add_socket = False
         else:
             add_socket = input("Would you like to add an addtional socket? (y/n)")         
-         
+
+   
 """
 
 def prices(bathroom_option, kitchen_option, livingroom_option, heatpump_option):
@@ -159,10 +199,13 @@ def statements(bathroom_option, bathroom_cost, kitchen_option, kitchen_cost, liv
     
 """
 
+
 name, phone, address, trade_member = user_details()
 bathroom_option, kitchen_option, livingroom_option, heatpump_option = build_details()
 
 new_person = Person(name, phone, address, trade_member, bathroom_option, kitchen_option, livingroom_option, heatpump_option)
+new_quote = Quote(new_person,  )
+
 
 
 introduce = new_person.introduce()
