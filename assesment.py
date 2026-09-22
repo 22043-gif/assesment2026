@@ -19,9 +19,9 @@ TRADE_DISCOUNT_RATE = 0.1
 GST = 0.15
 
 PRICES = {
-    "bathroom": {"a": 2500.0, "d": 0.0},
-    "kitchen": {"a": 2000.0, "b": 3500.0, "c": 6000.0, "d": 0.0},
-    "livingroom": {"a": 250.0, "b": 250.0, "d": 0.0},
+    "bathroom": {1: 2500.0},
+    "kitchen": {1: 2000.0, 2: 3500.0, 3: 6000.0},
+    "livingroom": {1: 250.0, 2: 250.0},
     "heatpump_living": 2500.0,
     "heatpump_bedroom": 1800.0,
     "socket_1g": 40.0,
@@ -51,40 +51,91 @@ class Quote:
                  network_points_count):
 
         self.customer = customer
-        self.ref_number = self.generate_ref_number()
+        date_str = datetime.datetime.now().strftime("%d%m%Y")
+        self.ref_number = f"{customer.name[:3]}-{date_str}"
         
-        self.bathroom_opt = bathroom_opt
-        self.kitchen_opt = kitchen_opt
-        self.living_opt = living_opt
+        self.bathroom_option = bathroom_option
+        self.kitchen_option = kitchen_option
+        self.livingroom_option = livingroom_option
         
-        self.hp_living = hp_living
-        self.hp_bedroom = hp_bedroom
+        self.heatpump_living = heatpump_living
+        self.heatpump_bedroom = heatpump_bedroom
         
         self.socket_1g_count = socket_1g_count
         self.socket_2g_count = socket_2g_count
         self.network_points_count = network_points_count
 
+        #Other functions in class
+        
+        def calculate_cost_upgrades(self) -> float:
+            total = 0.0
 
+            #Room upgrades
+            total += PRICES["bathroom"].get(self.bathroom_opt, 0.0)
+            total += PRICES["kitchen"].get(self.kitchen_opt, 0.0)
+            total += PRICES["livingroom"].get(self.living_opt, 0.0)
 
+            #Heatpump upgrades
+            if self.heatpump_living:
+                total += PRICES["heatpump_living"]
+            if self.heatpump_bedroom:
+                total += PRICES["heatpump_bedroom"]
 
+            #Socket upgrades
+            total += self.socket_1g_count * PRICES["socket_1g"]
+            total += self.socket_2g_count * PRICES["socket_2g"]
 
+            #Network upgrades
+            if self.network_points_count > 0:
+                total += (self.network_points_count * PRICES["network_point"]) + PRICES["network_switch"]
 
+            return total
 
+        def calculate_total(self) -> dict:
 
+            cost_upgrades = self.calculate_cost_upgrades
+            cost_gst = cost_upgrades * GST
+            total_cost_upgrades = cost_upgrades + cost_gst
 
+            initial_cost_of_build = total_cost_upgrades + BASIC_KIT
 
+            discount_amount = 0.0
 
+            if self.customer.is_trade:
+                discount_amount = initial_cost_of_build * TRADE_DISCOUNT_RATE
 
+            final_total = initial_cost_of_build - discount_amount
 
+            return {
+                "cost_upgrades": cost_upgrades,
+                "cost_gst": cost_gst,
+                "total_cost_upgrades": total_cost_upgrades,
+                "initial_cost_of_build": initial_cost_of_build,
+                "discount_amount": discount_amount,
+                "final_total": final_total      
+            }
 
+        def display_quote(self):
+            """Displaying quote for user on console"""
 
+            costs = self.calculate_total()
 
+            #Display details of user
 
+            print("    Thank you for using our quotation service, estimate incoming!")
+            print("\n")
+            print("Waimak Build Co - Official Quote")
+            print("\n")
+            print(f"Quote Refference Number:         {self.ref_number}")
+            print(f"Customer Name:                   {self.customer.name}")
+            print(f"Phone Number:                    {self.customer.phone}")
+            print(f"Contact Address:                 {self.customer.address}")
+            if self.customer.is_trade:
+                print(f"Trade Account:                   Yes - 10% Discount")
+            else: 
+                print(f"Trade Account:                   No - 0% Discount")
 
-
-
-
-
+            #Display Upgrade Details
 
 
 
@@ -92,7 +143,8 @@ class Quote:
                 print(f"Hi, my name is {self.name}.")
                 print(f"My phone number is {self.phone}.")
 
-def user_details():
+
+def get_user_details():
     """
     Finds names
     """
@@ -103,45 +155,47 @@ def user_details():
 
     applied__loop = True
     while applied__loop:
-        trade_member = input("Are you a trade member (yes/no): ")
-        if trade_member == "yes":
+        is_trade = input("Are you a trade member (yes/no): ")
+        if is_trade == "yes":
             print("You are eligible for a discount")
             applied__loop = False
-        elif trade_member == "no":
+        elif is_trade == "no":
             print("You are not eligible for a discount")
             applied__loop = False
         else:
             print("Please enter yes or no")
 
+    return(name, phone, address, is_trade)
 
-    return(name, phone, address, trade_member)
 
-
-def build_details():
+def get_build_details():
     """
     This function will get user input on the details of what they want in their design
      """
+
+    #Gets room upgrades
     print("Here are the upgrades available:")
-    print("Bathroom - \n    Basic: no added cost \n    Upgrade A: an aditional $2500")
-    bathroom_option = input("    Please select default (d) or upgrade (a): ")
-    print("Kitchen - \n    Basic: no added cost \n    Upgrade A: an aditional $2000 \n    Upgrade B: an aditional $3500 \n    Upgrade C: an aditional $6000")
-    kitchen_option = input("    Please select default (d) or upgrade (a) or (b) or (c): ")
+    print("Bathroom - \n    Basic: no added cost \n    Upgrade 1: an aditional $2500")
+    bathroom_option = input("    Select default (0 / 1): ")
+
+    print("Kitchen - \n    Basic: no added cost \n    Upgrade 1: an aditional $2000 \n    Upgrade 2: an aditional $3500 \n    Upgrade 3: an aditional $6000")
+    kitchen_option = input("    Selct default (0 / 1 / 2 / 3): ")
+
     print("Living Room - \n    Basic: no added cost \n    Upgrade A: an aditional $250 \n    Upgrade B: an aditional $250")
-    livingroom_option = input("    Please select default (d) or upgrade (a) or (b): ")
-    print("Heat Pumps - \n    Living Room: an aditional $2500 \n    Bedroom: an aditional $1800")
-    heatpump_option = input("    Please select none (d), living room (a), bedroom (b) or both (c): ")
+    livingroom_option = input("    Please select default (0 / 1 / 2): ")
 
-    return(bathroom_option, kitchen_option, livingroom_option, heatpump_option)
+    heatpump_living = input("\nAdd 4.5kW Living Room Heat Pump? (+$2,500) (y/n): ").strip().lower() == "y"
+    heatpump_bedroom = input("Add 2.5kW Bedroom Heat Pump? (+$1,800) (y/n): ").strip().lower() == "y"
 
-def network_details():
-    add_socket = input("Would you like to add an addtional socket? (y/n)")
-    while add_socket != ("y") or ("n"):
-        if add_socket == ("y"):
-            add_socket = True
-        elif add_socket == ("n"):
-            add_socket = False
-        else:
-            add_socket = input("Would you like to add an addtional socket? (y/n)")         
+    #Get network details 
+
+    socket_1g_count = int(input("\nHow many extra 1G sockets?: "))
+    socket_2g_count = int(input("How many extra 2G sockets?: "))  
+
+    network_points_count = int(input("How many network points?: "))
+
+    return bathroom_option, kitchen_option, livingroom_option, heatpump_living, heatpump_bedroom, socket_1g_count, socket_2g_count, network_points_count
+           
 
    
 """
@@ -200,12 +254,10 @@ def statements(bathroom_option, bathroom_cost, kitchen_option, kitchen_cost, liv
 """
 
 
-name, phone, address, trade_member = user_details()
-bathroom_option, kitchen_option, livingroom_option, heatpump_option = build_details()
+user = get_user_details()
+bathroom_option, kitchen_option, livingroom_option, heatpump_living, heatpump_bedroom, socket_1g_count, socket_2g_count, network_points_count = get_build_details()
 
-new_person = Person(name, phone, address, trade_member, bathroom_option, kitchen_option, livingroom_option, heatpump_option)
-new_quote = Quote(new_person,  )
+new_quote = Quote(user,bathroom_option, kitchen_option, livingroom_option, heatpump_living, heatpump_bedroom, socket_1g_count, socket_2g_count, network_points_count)
+quote.display_quote()
 
 
-
-introduce = new_person.introduce()
