@@ -1,3 +1,59 @@
+
+"""
+
+def prices(bathroom_option, kitchen_option, livingroom_option, heatpump_option):
+    if bathroom_option == "a":
+        bathroom_cost = BATHROOM_UPGRADE_A
+    else:
+        bathroom_cost = BATHROOM_DEFAULT_D
+
+    if kitchen_option == "a":
+        kitchen_cost = KITCHEN_UPGRADE_A
+    elif kitchen_option == "b":
+        kitchen_cost = KITCHEN_UPGRADE_B
+    elif kitchen_option == "c":
+        kitchen_cost = KITCHEN_UPGRADE_C
+    else:
+        kitchen_cost = KITCHEN_DEFAULT_D
+
+    if livingroom_option == "a":
+        livingroom_cost = LIVINGROOM_UPGRADE_A
+    elif livingroom_option == "b":
+        livingroom_cost = LIVINGROOM_UPGRADE_B
+    else:
+        livingroom_cost = LIVINGROOM_DEFAULT_D
+
+    if heatpump_option == "a":
+        heatpump_cost = HEATPUMP_LIVINGROOM
+    elif heatpump_option == "b":
+        heatpump_cost = HEATPUMP_BEDROOM
+    elif heatpump_option == "c":
+        heatpump_cost = HEATPUMP_LIVINGROOM + HEATPUMP_BEDROOM
+    else:
+        heatpump_cost = HEATPUMP_DEFAULT_D
+
+
+def statements(bathroom_option, bathroom_cost, kitchen_option, kitchen_cost, livingroom_option, livingroom_cost, heatpump_option, heatpump_cost):
+    print("Here is your personilized quotation based on your selections:")
+    print (f"Basic Kit: ${BASIC_KIT}")
+    print (f"Additional Upgrades:")
+    if bathroom_cost > 0:
+        print(f"You selected Option {bathroom_option}")
+        print(f"   Bathroom:${bathroom_cost}")
+    if kitchen_cost > 0:
+        print(f"You selected Option {kitchen_option}")
+        print(f"   Kitchen: ${kitchen_cost}")
+    if livingroom_cost > 0:
+        print(f"You selected Option {livingroom_option}")
+        print(f"   Living Room: ${livingroom_cost}")
+    if heatpump_cost > 0:
+        print(f"You selected Option {heatpump_option}")
+        print(f"   Heat Pumps: ${heatpump_cost}")
+    if bathroom_cost == 0 and kitchen_cost == 0 and livingroom_cost == 0 and heatpump_cost == 0:
+        print("   No additional upgrades selected")
+    
+"""
+
 #Stella Jones
 #02.09.2026
 #Programming Assesment 
@@ -67,105 +123,103 @@ class Quote:
 
         #Other functions in class
         
-        def calculate_cost_upgrades(self) -> float:
-            total = 0.0
+    def calculate_cost_upgrades(self) -> float:
+        total = 0.0
 
-            #Room upgrades
-            total += PRICES["bathroom"].get(self.bathroom_opt, 0.0)
-            total += PRICES["kitchen"].get(self.kitchen_opt, 0.0)
-            total += PRICES["livingroom"].get(self.living_opt, 0.0)
+        #Room upgrades
+        total += PRICES["bathroom"].get(self.bathroom_option, 0.0)
+        total += PRICES["kitchen"].get(self.kitchen_option, 0.0)
+        total += PRICES["livingroom"].get(self.livingroom_option, 0.0)
 
-            #Heatpump upgrades
-            if self.heatpump_living:
-                total += PRICES["heatpump_living"]
-            if self.heatpump_bedroom:
-                total += PRICES["heatpump_bedroom"]
+        #Heatpump upgrades
+        if self.heatpump_living:
+            total += PRICES["heatpump_living"]
+        if self.heatpump_bedroom:
+            total += PRICES["heatpump_bedroom"]
 
-            #Socket upgrades
-            total += self.socket_1g_count * PRICES["socket_1g"]
-            total += self.socket_2g_count * PRICES["socket_2g"]
+        #Socket upgrades
+        total += self.socket_1g_count * PRICES["socket_1g"]
+        total += self.socket_2g_count * PRICES["socket_2g"]
 
-            #Network upgrades
-            if self.network_points_count > 0:
-                total += (self.network_points_count * PRICES["network_point"]) + PRICES["network_switch"]
+        #Network upgrades
+        if self.network_points_count > 0:
+            total += (self.network_points_count * PRICES["network_point"]) + PRICES["network_switch"]
 
-            return total
+        return total
 
-        def calculate_total(self) -> dict:
+    def calculate_total(self) -> dict:
 
-            cost_upgrades = self.calculate_cost_upgrades
-            cost_gst = cost_upgrades * GST
-            total_cost_upgrades = cost_upgrades + cost_gst
+        cost_upgrades = self.calculate_cost_upgrades()
+        cost_gst = cost_upgrades * GST
+        total_cost_upgrades = cost_upgrades + cost_gst
 
-            initial_cost_of_build = total_cost_upgrades + BASIC_KIT
+        initial_cost_of_build = total_cost_upgrades + BASIC_KIT
 
-            discount_amount = 0.0
+        discount_amount = 0.0
 
-            if self.customer.is_trade:
-                discount_amount = initial_cost_of_build * TRADE_DISCOUNT_RATE
+        if self.customer.is_trade:
+            discount_amount = initial_cost_of_build * TRADE_DISCOUNT_RATE
 
-            final_total = initial_cost_of_build - discount_amount
+        final_total = initial_cost_of_build - discount_amount
 
-            return {
-                "cost_upgrades": cost_upgrades,
-                "cost_gst": cost_gst,
-                "total_cost_upgrades": total_cost_upgrades,
-                "initial_cost_of_build": initial_cost_of_build,
-                "discount_amount": discount_amount,
-                "final_total": final_total      
-            }
+        return {
+            "cost_upgrades": cost_upgrades,
+            "cost_gst": cost_gst,
+            "total_cost_upgrades": total_cost_upgrades,
+            "initial_cost_of_build": initial_cost_of_build,
+            "discount_amount": discount_amount,
+            "final_total": final_total      
+        }
 
-        def display_quote(self):
-            """Displaying quote for user on console"""
+    def display_quote(self):
+        """Displaying quote for user on console"""
 
-            costs = self.calculate_total()
+        costs = self.calculate_total()
 
-            #Display details of user
+        #Display details of user
 
-            print("    Thank you for using our quotation service, estimate incoming!")
-            print("\n")
-            print("Waimak Build Co - Official Quote")
-            print("\n")
-            print(f"Quote Refference Number:         {self.ref_number}")
-            print(f"Customer Name:                   {self.customer.name}")
-            print(f"Phone Number:                    {self.customer.phone}")
-            print(f"Contact Address:                 {self.customer.address}")
-            if self.customer.is_trade:
-                print(f"Trade Account:                   Yes - 10% Discount")
-            else: 
-                print(f"Trade Account:                   No - 0% Discount")
+        print("Thank you for using our quotation service, estimate incoming!")
+        print()
+        print("-" * 50)
+        print("Waimak Build Co - Official Quote")
+        print("-" * 50)
+        print(f"Quote Refference Number:         {self.ref_number}")
+        print(f"Customer Name:                   {self.customer.name}")
+        print(f"Phone Number:                    {self.customer.phone}")
+        print(f"Contact Address:                 {self.customer.address}")
+        if self.customer.is_trade:
+            print(f"Trade Account:                   Yes - 10% Discount")
+        else: 
+            print(f"Trade Account:                   No - 0% Discount")
 
-            #Display Upgrade Details
+        #Display Upgrade Details
+        print()
+        print(f"Upgrades Subtotal (excl. GST): ${costs['cost_upgrades']:,.2f}")
+        print(f"GST on Upgrades (15%):         ${costs['cost_gst']:,.2f}")
+        print(f"Base Kit Cost:                 ${BASIC_KIT:,.2f}")
+        if self.customer.is_trade:
+            print(f"Trade Discount Amount:        -${costs['discount_amount']:,.2f}")
+        print()
+        print(f"TOTAL ESTIMATE:                ${costs['final_total']:,.2f}")
+        print("-" * 50)
 
 
 
-    def introduce(self):
-                print(f"Hi, my name is {self.name}.")
-                print(f"My phone number is {self.phone}.")
-
-
-def get_user_details():
+def get_user_details() -> Person:
     """
-    Finds names
+    Finds all the names and infomation not directly involved in calculations
     """
     print("Welcome to the Waimak Build Co, Quotation Creator!")
     name = input("Name: ")
     phone = input("Phone number: ") 
     address = input("Address: ")
 
-    applied__loop = True
-    while applied__loop:
-        is_trade = input("Are you a trade member (yes/no): ")
-        if is_trade == "yes":
-            print("You are eligible for a discount")
-            applied__loop = False
-        elif is_trade == "no":
-            print("You are not eligible for a discount")
-            applied__loop = False
-        else:
-            print("Please enter yes or no")
 
-    return(name, phone, address, is_trade)
+    trade_choice = input("Are you a trade member (yes/no): ").strip().lower()
+    is_trade = (trade_choice == "yes")
+
+
+    return Person(name, phone, address, is_trade)
 
 
 def get_build_details():
@@ -176,19 +230,21 @@ def get_build_details():
     #Gets room upgrades
     print("Here are the upgrades available:")
     print("Bathroom - \n    Basic: no added cost \n    Upgrade 1: an aditional $2500")
-    bathroom_option = input("    Select default (0 / 1): ")
+    bathroom_option = int(input("    Select default (0) / (1): "))
 
     print("Kitchen - \n    Basic: no added cost \n    Upgrade 1: an aditional $2000 \n    Upgrade 2: an aditional $3500 \n    Upgrade 3: an aditional $6000")
-    kitchen_option = input("    Selct default (0 / 1 / 2 / 3): ")
+    kitchen_option = int(input("    Selct default (0) / (1) / (2) / (3)): "))
 
     print("Living Room - \n    Basic: no added cost \n    Upgrade A: an aditional $250 \n    Upgrade B: an aditional $250")
-    livingroom_option = input("    Please select default (0 / 1 / 2): ")
+    livingroom_option = int(input("    Please select default (0) / (1) / (2): "))
 
-    heatpump_living = input("\nAdd 4.5kW Living Room Heat Pump? (+$2,500) (y/n): ").strip().lower() == "y"
-    heatpump_bedroom = input("Add 2.5kW Bedroom Heat Pump? (+$1,800) (y/n): ").strip().lower() == "y"
+    print("Heatpumps - ")
+    heatpump_living = input("    Add 4.5kW Living Room Heat Pump? (+$2,500) \n    Please select(y/n): ").strip().lower() == "y"
+    heatpump_bedroom = input("    Add 2.5kW Bedroom Heat Pump? (+$1,800) \n    Please select(y/n): ").strip().lower() == "y"
 
     #Get network details 
 
+    print("Network - ")
     socket_1g_count = int(input("\nHow many extra 1G sockets?: "))
     socket_2g_count = int(input("How many extra 2G sockets?: "))  
 
@@ -197,67 +253,12 @@ def get_build_details():
     return bathroom_option, kitchen_option, livingroom_option, heatpump_living, heatpump_bedroom, socket_1g_count, socket_2g_count, network_points_count
            
 
-   
-"""
-
-def prices(bathroom_option, kitchen_option, livingroom_option, heatpump_option):
-    if bathroom_option == "a":
-        bathroom_cost = BATHROOM_UPGRADE_A
-    else:
-        bathroom_cost = BATHROOM_DEFAULT_D
-
-    if kitchen_option == "a":
-        kitchen_cost = KITCHEN_UPGRADE_A
-    elif kitchen_option == "b":
-        kitchen_cost = KITCHEN_UPGRADE_B
-    elif kitchen_option == "c":
-        kitchen_cost = KITCHEN_UPGRADE_C
-    else:
-        kitchen_cost = KITCHEN_DEFAULT_D
-
-    if livingroom_option == "a":
-        livingroom_cost = LIVINGROOM_UPGRADE_A
-    elif livingroom_option == "b":
-        livingroom_cost = LIVINGROOM_UPGRADE_B
-    else:
-        livingroom_cost = LIVINGROOM_DEFAULT_D
-
-    if heatpump_option == "a":
-        heatpump_cost = HEATPUMP_LIVINGROOM
-    elif heatpump_option == "b":
-        heatpump_cost = HEATPUMP_BEDROOM
-    elif heatpump_option == "c":
-        heatpump_cost = HEATPUMP_LIVINGROOM + HEATPUMP_BEDROOM
-    else:
-        heatpump_cost = HEATPUMP_DEFAULT_D
-
-
-def statements(bathroom_option, bathroom_cost, kitchen_option, kitchen_cost, livingroom_option, livingroom_cost, heatpump_option, heatpump_cost):
-    print("Here is your personilized quotation based on your selections:")
-    print (f"Basic Kit: ${BASIC_KIT}")
-    print (f"Additional Upgrades:")
-    if bathroom_cost > 0:
-        print(f"You selected Option {bathroom_option}")
-        print(f"   Bathroom:${bathroom_cost}")
-    if kitchen_cost > 0:
-        print(f"You selected Option {kitchen_option}")
-        print(f"   Kitchen: ${kitchen_cost}")
-    if livingroom_cost > 0:
-        print(f"You selected Option {livingroom_option}")
-        print(f"   Living Room: ${livingroom_cost}")
-    if heatpump_cost > 0:
-        print(f"You selected Option {heatpump_option}")
-        print(f"   Heat Pumps: ${heatpump_cost}")
-    if bathroom_cost == 0 and kitchen_cost == 0 and livingroom_cost == 0 and heatpump_cost == 0:
-        print("   No additional upgrades selected")
-    
-"""
 
 
 user = get_user_details()
 bathroom_option, kitchen_option, livingroom_option, heatpump_living, heatpump_bedroom, socket_1g_count, socket_2g_count, network_points_count = get_build_details()
 
 new_quote = Quote(user,bathroom_option, kitchen_option, livingroom_option, heatpump_living, heatpump_bedroom, socket_1g_count, socket_2g_count, network_points_count)
-quote.display_quote()
+new_quote.display_quote()
 
 
