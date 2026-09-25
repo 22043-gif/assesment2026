@@ -1,0 +1,42 @@
+[
+  {
+    "ref_number": "STE25092026",
+    "customer": {
+      "name": "Stella",
+      "phone": "545454547843",
+      "address": "65 Wuiiureg",
+      "is_trade": true
+    },
+    "options": {
+      "bathroom_option": 1,
+      "kitchen_option": 2,
+      "livingroom_option": 2,
+      "heatpump_living": true,
+      "heatpump_bedroom": false,
+      "socket_1g_count": 3,
+      "socket_2g_count": 3,
+      "network_points_count": 4
+    },
+    "final_total": 77146.2
+  },
+  {
+    "ref_number": "SAM25092026",
+    "customer": {
+      "name": "Sam",
+      "phone": "57864864647",
+      "address": "67 Iguive",
+      "is_trade": false
+    },
+    "options": {
+      "bathroom_option": 0,
+      "kitchen_option": 3,
+      "livingroom_option": 1,
+      "heatpump_living": true,
+      "heatpump_bedroom": false,
+      "socket_1g_count": 3,
+      "socket_2g_count": 4,
+      "network_points_count": 3
+    },
+    "final_total": 85718.0
+  }
+]

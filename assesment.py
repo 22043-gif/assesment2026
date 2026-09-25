@@ -1,59 +1,3 @@
-
-"""
-
-def prices(bathroom_option, kitchen_option, livingroom_option, heatpump_option):
-    if bathroom_option == "a":
-        bathroom_cost = BATHROOM_UPGRADE_A
-    else:
-        bathroom_cost = BATHROOM_DEFAULT_D
-
-    if kitchen_option == "a":
-        kitchen_cost = KITCHEN_UPGRADE_A
-    elif kitchen_option == "b":
-        kitchen_cost = KITCHEN_UPGRADE_B
-    elif kitchen_option == "c":
-        kitchen_cost = KITCHEN_UPGRADE_C
-    else:
-        kitchen_cost = KITCHEN_DEFAULT_D
-
-    if livingroom_option == "a":
-        livingroom_cost = LIVINGROOM_UPGRADE_A
-    elif livingroom_option == "b":
-        livingroom_cost = LIVINGROOM_UPGRADE_B
-    else:
-        livingroom_cost = LIVINGROOM_DEFAULT_D
-
-    if heatpump_option == "a":
-        heatpump_cost = HEATPUMP_LIVINGROOM
-    elif heatpump_option == "b":
-        heatpump_cost = HEATPUMP_BEDROOM
-    elif heatpump_option == "c":
-        heatpump_cost = HEATPUMP_LIVINGROOM + HEATPUMP_BEDROOM
-    else:
-        heatpump_cost = HEATPUMP_DEFAULT_D
-
-
-def statements(bathroom_option, bathroom_cost, kitchen_option, kitchen_cost, livingroom_option, livingroom_cost, heatpump_option, heatpump_cost):
-    print("Here is your personilized quotation based on your selections:")
-    print (f"Basic Kit: ${BASIC_KIT}")
-    print (f"Additional Upgrades:")
-    if bathroom_cost > 0:
-        print(f"You selected Option {bathroom_option}")
-        print(f"   Bathroom:${bathroom_cost}")
-    if kitchen_cost > 0:
-        print(f"You selected Option {kitchen_option}")
-        print(f"   Kitchen: ${kitchen_cost}")
-    if livingroom_cost > 0:
-        print(f"You selected Option {livingroom_option}")
-        print(f"   Living Room: ${livingroom_cost}")
-    if heatpump_cost > 0:
-        print(f"You selected Option {heatpump_option}")
-        print(f"   Heat Pumps: ${heatpump_cost}")
-    if bathroom_cost == 0 and kitchen_cost == 0 and livingroom_cost == 0 and heatpump_cost == 0:
-        print("   No additional upgrades selected")
-    
-"""
-
 #Stella Jones
 #02.09.2026
 #Programming Assesment 
@@ -64,11 +8,13 @@ def statements(bathroom_option, bathroom_cost, kitchen_option, kitchen_cost, liv
 #must add file
 
 import datetime 
+import json
+from pathlib import Path
 
 
-#----------
 #Constants
-#----------
+
+QUOTE_FILE = Path("quotes.json")
 
 BASIC_KIT = 75000
 TRADE_DISCOUNT_RATE = 0.1
@@ -87,9 +33,7 @@ PRICES = {
 }
 
 
-#----------
 #Classes
-#----------
 
 class Person:
     """Stores cust details"""
@@ -99,16 +43,27 @@ class Person:
         self.address = address
         self.is_trade = is_trade
 
+    def introduce(self):
+        print("Hello!" + self.name)
+
 class Quote:
-    """Handles option selections, pring calc and quote printing """
-    def __init__(self, customer: Person, bathroom_option, 
-                 kitchen_option, livingroom_option, heatpump_living, 
-                 heatpump_bedroom, socket_1g_count, socket_2g_count,
-                 network_points_count):
+    """Handles option selections, pricing calculations and quote printing """
+    def __init__(self, customer: Person, bathroom_option: int, 
+                 kitchen_option: int, livingroom_option: int, heatpump_living: bool, 
+                 heatpump_bedroom: bool, socket_1g_count: int, socket_2g_count: int,
+                 network_points_count: int, ref_number: str = None):
+
 
         self.customer = customer
-        date_str = datetime.datetime.now().strftime("%d%m%Y")
-        self.ref_number = f"{customer.name[:3]}-{date_str}"
+
+        #Reference number
+
+        if ref_number:
+            self.ref_number = ref_number
+        else:
+            date_str = datetime.datetime.now().strftime("%d%m%Y")
+            clean_name = customer.name.replace(" ", "")[:3].upper()
+            self.ref_number = (clean_name + date_str)
         
         self.bathroom_option = bathroom_option
         self.kitchen_option = kitchen_option
@@ -121,9 +76,10 @@ class Quote:
         self.socket_2g_count = socket_2g_count
         self.network_points_count = network_points_count
 
-        #Other functions in class
+    #Other functions in class
         
     def calculate_cost_upgrades(self) -> float:
+        """This is decription for func"""
         total = 0.0
 
         #Room upgrades
@@ -148,6 +104,7 @@ class Quote:
         return total
 
     def calculate_total(self) -> dict:
+        """This is purpose of function"""
 
         cost_upgrades = self.calculate_cost_upgrades()
         cost_gst = cost_upgrades * GST
@@ -156,7 +113,6 @@ class Quote:
         initial_cost_of_build = total_cost_upgrades + BASIC_KIT
 
         discount_amount = 0.0
-
         if self.customer.is_trade:
             discount_amount = initial_cost_of_build * TRADE_DISCOUNT_RATE
 
@@ -170,6 +126,37 @@ class Quote:
             "discount_amount": discount_amount,
             "final_total": final_total      
         }
+
+    def object_to_dict(self) -> dict:
+        """Explain purpose of function"""
+
+        costs = self.calculate_total()
+        
+        return {
+            "ref_number": self.ref_number,
+            "customer": {
+                "name": self.customer.name,
+                "phone": self.customer.phone,
+                "address": self.customer.address,
+                "is_trade": self.customer.is_trade
+            },
+            "options": {
+                "bathroom_option": self.bathroom_option,
+                "kitchen_option": self.kitchen_option,
+                "livingroom_option": self.livingroom_option,
+                "heatpump_living": self.heatpump_living,
+                "heatpump_bedroom": self.heatpump_bedroom,
+                "socket_1g_count": self.socket_1g_count,
+                "socket_2g_count": self.socket_2g_count,
+                "network_points_count": self.network_points_count
+            },
+            "final_total": costs["final_total"]
+        }
+
+
+
+
+
 
     def display_quote(self):
         """Displaying quote for user on console"""
@@ -203,7 +190,24 @@ class Quote:
         print(f"TOTAL ESTIMATE:                ${costs['final_total']:,.2f}")
         print("-" * 50)
 
+#Functions
 
+#File functions
+def load_quotes() -> list:
+    """Description of func."""
+    if QUOTE_FILE.exists():
+        with open(QUOTE_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+
+    return []
+
+def save_quotes(quotes_data: list):
+    """Discription of func"""
+    with open(QUOTE_FILE, "w", encoding="utf-8") as f:
+        json.dump(quotes_data, f, indent=2)
+
+#Punctions for input gathering
+        
 
 def get_user_details() -> Person:
     """
@@ -220,6 +224,7 @@ def get_user_details() -> Person:
 
 
     return Person(name, phone, address, is_trade)
+
 
 
 def get_build_details():
@@ -252,13 +257,67 @@ def get_build_details():
 
     return bathroom_option, kitchen_option, livingroom_option, heatpump_living, heatpump_bedroom, socket_1g_count, socket_2g_count, network_points_count
            
+#Function for returning stored data
+def view_saved_quotes(quotes_data: list):
+    """Description fo func"""
+    if not quotes_data:
+        print("\nNo  quotes found.")
+        return
+
+    print("SAVED QUOTES HISTORY")
+    for i, item in enumerate(quotes_data, start=1):
+        cust = item["customer"]
+        print(f"{i}. Ref: {item['ref_number']} | Name: {cust['name']} | Total: ${item['final_total']:,.2f}")
 
 
 
-user = get_user_details()
-bathroom_option, kitchen_option, livingroom_option, heatpump_living, heatpump_bedroom, socket_1g_count, socket_2g_count, network_points_count = get_build_details()
+def main():
+    quotes_data = load_quotes()
 
-new_quote = Quote(user,bathroom_option, kitchen_option, livingroom_option, heatpump_living, heatpump_bedroom, socket_1g_count, socket_2g_count, network_points_count)
-new_quote.display_quote()
+    while True:
+        print("-" * 50)
+        print("Waimak Build Co - Quote System")
+        print("1. Create New Quote")
+        print("2. View Saved Quotes Summary")
+        print("3. Exit")
+        print("-" * 50)
+        choice = input("Choose an option (1-3): ").strip()
+
+        if choice == "1":
+            customer = get_user_details()
+            
+            (bathroom_option, 
+             kitchen_option, 
+             livingroom_option, 
+             heatpump_living, 
+             heatpump_bedroom, 
+             socket_1g_count, 
+             socket_2g_count, 
+             network_points_count) = get_build_details()
+
+            new_quote = Quote(customer, 
+                              bathroom_option, 
+                              kitchen_option, 
+                              livingroom_option, 
+                              heatpump_living, 
+                              heatpump_bedroom, 
+                              socket_1g_count, 
+                              socket_2g_count, 
+                              network_points_count)
+            
+            new_quote.display_quote()
+
+            quotes_data.append(new_quote.object_to_dict())
+            save_quotes(quotes_data)
+            print("Quote successfully saved to file!")
+
+        elif choice == "2":
+            view_saved_quotes(quotes_data)
+
+        elif choice == "3":
+            print("\nThank you for using Waimak Build Co Quotation Creator. Goodbye!")
+            break
 
 
+if __name__ == "__main__":
+    main()
