@@ -213,19 +213,14 @@ def get_user_details() -> Person:
     """
     Finds all the names and infomation not directly involved in calculations
     """
+
     print("Welcome to the Waimak Build Co, Quotation Creator!")
-    name = input("Name: ")
-    phone = input("Phone number: ") 
-    address = input("Address: ")
-
-
-    trade_choice = input("Are you a trade member (yes/no): ").strip().lower()
-    is_trade = (trade_choice == "yes")
-
+    name = check_valid_string("Name: ", "Name")
+    phone = check_valid_string("Phone number: ", "Phone num") 
+    address = check_valid_string("Address: ", "Address")
+    is_trade = check_valid_bool("Are you a trade member (y/n): ").strip().lower()
 
     return Person(name, phone, address, is_trade)
-
-
 
 def get_build_details():
     """
@@ -234,26 +229,50 @@ def get_build_details():
 
     #Gets room upgrades
     print("Here are the upgrades available:")
-    print("Bathroom - \n    Basic: no added cost \n    Upgrade 1: an aditional $2500")
-    bathroom_option = int(input("    Select default (0) / (1): "))
 
-    print("Kitchen - \n    Basic: no added cost \n    Upgrade 1: an aditional $2000 \n    Upgrade 2: an aditional $3500 \n    Upgrade 3: an aditional $6000")
-    kitchen_option = int(input("    Selct default (0) / (1) / (2) / (3)): "))
+    print(f"Bathroom Options - \n    
+        Basic: no added cost \n    
+        Upgrade 1, + $2500
+        ")
+    bathroom_option = check_valid_int("Selct option (0 - 1): ", min_val=0, max_val=1)
 
-    print("Living Room - \n    Basic: no added cost \n    Upgrade A: an aditional $250 \n    Upgrade B: an aditional $250")
-    livingroom_option = int(input("    Please select default (0) / (1) / (2): "))
+    print(f"Kitchen Options - \n    
+        Basic 0, no added cost \n    
+        Upgrade 1, + $2000 \n    
+        Upgrade 2, + 3500 \n    
+        Upgrade 3, + $6000
+        ")
+    kitchen_option = check_valid_int("Selct option (0 - 3): ", min_val=0, max_val=3)
+
+    print(f"Living Room - \n    
+        Basic: no added cost \n    
+        Upgrade 1, + $250 \n    
+        Upgrade 2, + $250
+        ")
+    livingroom_option = check_valid_int("Selct option (0 - 2): ", min_val=0, max_val=2)
 
     print("Heatpumps - ")
-    heatpump_living = input("    Add 4.5kW Living Room Heat Pump? (+$2,500) \n    Please select(y/n): ").strip().lower() == "y"
-    heatpump_bedroom = input("    Add 2.5kW Bedroom Heat Pump? (+$1,800) \n    Please select(y/n): ").strip().lower() == "y"
+    heatpump_living = input("Add 4.5kW Living Room Heat Pump?, +$2,500 \nSelect (y/n: ").strip().lower() == "y"
+
+    heatpump_bedroom = input("Add 2.5kW Bedroom Heat Pump?, +$1,800 \n Select (y/n): ").strip().lower() == "y"
 
     #Get network details 
 
-    print("Network - ")
-    socket_1g_count = int(input("\nHow many extra 1G sockets?: "))
-    socket_2g_count = int(input("How many extra 2G sockets?: "))  
+    print("\nSocket Upgrades - ")
+    socket_1g = check_valid_int("Number of extra 1G sockets, $40 ea: ", min_val=0, max_val=12)
+    remaining_allowed = 12 - socket_1g
+    if remaining_allowed > 0:
+        print(f"(You can add up to {remaining_allowed} extra 2G sockets)")
+        socket_2g = check_valid_int("Number of extra 2G sockets, $50 ea: ", min_val=0, max_val=remaining_allowed)
 
-    network_points_count = int(input("How many network points?: "))
+    print("\nSocket Upgrades - ")
+    print ("Please note adding network points, will mean a $100 switch is also added automatically")
+    while True:
+        network_points_count = get_valid_int("How many network points required? (0, or 2 - 8): ", min_val=0, max_val=8)
+        if network_points_count = 1
+            print("Try again, you cannot select only 1 network point")
+        else
+            break
 
     return bathroom_option, kitchen_option, livingroom_option, heatpump_living, heatpump_bedroom, socket_1g_count, socket_2g_count, network_points_count
            
@@ -269,6 +288,42 @@ def view_saved_quotes(quotes_data: list):
         cust = item["customer"]
         print(f"{i}. Ref: {item['ref_number']} | Name: {cust['name']} | Total: ${item['final_total']:,.2f}")
 
+#Validation functions
+
+def check_valid_int(prompt: str, min_val: int = 0, max_val: int = None) -> int:
+    """
+    Ensures correct int value entered
+    """
+    while True:
+        raw_input = input(prompt).strip()
+        try:
+            val = int(raw_input)
+            if val < min_val:
+                print(f"Try again, value cannot be less than {min_val}.")
+            elif max_val is not None and val > max_val:
+                print(f"Try again, value must be between {min_val} and {max_val}.")
+            else:
+                return val
+        except ValueError:
+            print("Try again, that was invalid input and not a whole number.")
+
+def check_valid_string(prompt: str, field_name: str) -> str:
+    """So string fields not left blank."""
+    while True:
+        user_input = input(prompt).strip()
+        if user_input:
+            return user_input
+        print(f"Try again, {field_name} cannot be left blank.")
+
+def check_valid_bool(prompt: str) -> bool:
+    """validates y/n input and converts to correct format""" 
+    while True:
+        choice = input(prompt).strip().lower()
+        if choice in ["yes", "y"]:
+            return True
+        elif choice in ["no", "n"]:
+            return False
+        print("Try again, that isn't an option.")
 
 
 def main():
