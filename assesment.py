@@ -5,21 +5,24 @@
 
 #Libraries 
 
-#must add file
-
+#Imports module from Python's library, allowing for use of built-in classes and functions related to time
 import datetime 
+#Imports module from Python's library, allowing for reading and writing of json (JavaScript Object Notation) data
 import json
+#Imports a class from a Python model, lets the program create and manage file system paths as objects
 from pathlib import Path
 
 
 #Constants
-
+#Creates a new object from the Path class, where quotes are saved
 QUOTE_FILE = Path("quotes.json")
 
+#Defines fixed prices and rates rather than using literals, easier to read, maintain, and update  
 BASIC_KIT = 75000
 TRADE_DISCOUNT_RATE = 0.1
 GST = 0.15
 
+#A nested dictionary holding upgrade options, and keys to their respective prices
 PRICES = {
     "bathroom": {1: 2500.0},
     "kitchen": {1: 2000.0, 2: 3500.0, 3: 6000.0},
@@ -32,7 +35,7 @@ PRICES = {
     "network_switch": 100.0
 }
 
-
+#Stores upgrade option definitions rather than using literals, easier to read, maintain, and update  
 BATH_OP_BASE = "Functional bathroom"
 BATH_OP_ONE = "Tiled floor, spa bath, shower, tapware"
 
@@ -52,7 +55,18 @@ HEATPUMP_BED = "2.5 KW"
 #Classes
 
 class Person:
-    """Stores cust details"""
+    """Represents a customer in the quotation system.
+
+    Stores contact details and trade status to determine eligibility 
+    for trade discounts in financial calculations.
+
+    Attributes:
+        name (str): The full name of the customer.
+        phone (str): Contact phone number.
+        address (str): Physical delivery or building site address.
+        is_trade (bool): Indicating if the customer has a trade account 
+            True for 10% discount, False for retail rate
+    """    
     def __init__(self, name, phone, address, is_trade):
         self.name = name
         self.phone = phone
@@ -122,20 +136,18 @@ class Quote:
 
         cost_upgrades = self.calculate_cost_upgrades()
         cost_gst = cost_upgrades * GST
-        total_cost_upgrades = cost_upgrades + cost_gst
-
-        initial_cost_of_build = total_cost_upgrades + BASIC_KIT
+        
+        initial_cost_of_build = cost_upgrades + BASIC_KIT
 
         discount_amount = 0.0
         if self.customer.is_trade:
             discount_amount = initial_cost_of_build * TRADE_DISCOUNT_RATE
-
-        final_total = initial_cost_of_build - discount_amount
+        
+        final_total = initial_cost_of_build - discount_amount + cost_gst
 
         return {
             "cost_upgrades": cost_upgrades,
             "cost_gst": cost_gst,
-            "total_cost_upgrades": total_cost_upgrades,
             "initial_cost_of_build": initial_cost_of_build,
             "discount_amount": discount_amount,
             "final_total": final_total      
@@ -232,7 +244,7 @@ def get_user_details() -> Person:
     name = check_valid_string("Name: ", "Name")
     phone = check_valid_string("Phone number: ", "Phone num") 
     address = check_valid_string("Address: ", "Address")
-    is_trade = check_valid_bool("Are you a trade member (y/n): ").strip().lower()
+    is_trade = check_valid_bool("Are you a trade member (y/n): ")
 
     return Person(name, phone, address, is_trade)
 
@@ -252,7 +264,7 @@ def get_build_details():
     0: {KITC_OP_BASE},+$0
     1: {KITC_OP_ONE},+${PRICES['kitchen'][1]:,.2f}
     2: {KITC_OP_TWO},+${PRICES['kitchen'][2]:,.2f}
-    3: {KITC_OP_THREE},+${PRICES['kitchen'][2]:,.2f}""")
+    3: {KITC_OP_THREE},+${PRICES['kitchen'][3]:,.2f}""")
     kitchen_option = check_valid_int("Selct option (0 - 3): ", min_val=0, max_val=3)
 
     print(f"""\nLiving Room Options-  
@@ -263,22 +275,22 @@ def get_build_details():
 
     print("\nHeatpumps - ")
     print (f"Would you like to add a {HEATPUMP_LIVE} heat pump in the living room?,+${PRICES['heatpump_living']:,.2f}?")
-    heatpump_living = check_valid_bool"Select (y/n): "
+    heatpump_living = check_valid_bool("Select (y/n): ")
 
     print (f"Would you like to add a {HEATPUMP_BED} heat pump in the bedroom room?,+${PRICES['heatpump_bedroom']:,.2f}?")
-    heatpump_bedroom = check_valid_bool"Select (y/n): "
+    heatpump_bedroom = check_valid_bool("Select (y/n): ")
 
     print("\nSocket Upgrades - ")
-    socket_1g_count = check_valid_int("Number of extra 1G sockets, ${PRICES['socket_1g']:,.2f} ea: ", min_val=0, max_val=12)
+    socket_1g_count = check_valid_int(f"Number of extra 1G sockets, ${PRICES['socket_1g']:,.2f} ea: ", min_val=0, max_val=12)
     remaining_allowed = 12 - socket_1g_count
     if remaining_allowed > 0:
         print(f"(You can add up to {remaining_allowed} extra 2G sockets)")
-        socket_1g_count = check_valid_int("Number of extra 2G sockets, ${PRICES['socket_2g']:,.2f} ea: ", min_val=0, max_val=remaining_allowed)
+        socket_2g_count = check_valid_int(f"Number of extra 2G sockets, ${PRICES['socket_2g']:,.2f} ea: ", min_val=0, max_val=remaining_allowed)
     else:
-        socket_1g_count = 0
+        socket_2g_count = 0
 
-    print("\Network Upgrades - ")
-    print ("Please note adding network points, will mean a $100 switch is also added automatically")
+    print("\nNetwork Upgrades - ")
+    print ("Please note adding 2 or more network points, will mean a $100 switch is also added automatically")
     while True:
         network_points_count = check_valid_int("How many network points required? (0, or 2 - 8): ", min_val=0, max_val=8)
         if network_points_count == 1:
