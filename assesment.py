@@ -33,6 +33,22 @@ PRICES = {
 }
 
 
+BATH_OP_BASE = "Functional bathroom"
+BATH_OP_ONE = "Tiled floor, spa bath, shower, tapware"
+
+KITC_OP_BASE = "Fitted kitchen"
+KITC_OP_ONE = "Unit/shelf upgrades and worktop"
+KITC_OP_TWO = "As op 1, plus induction hob"
+KITC_OP_THREE = "As op 1, plus Deluxe appliance pack"
+
+LIVE_OP_BASE = "No appliances"
+LIVE_OP_ONE = "TV point plus roof mounted aerial"
+LIVE_OP_TWO = "TV point plus satellite dish"
+
+HEATPUMP_LIVE = "4.5 KW"
+HEATPUMP_BED = "2.5 KW"
+
+
 #Classes
 
 class Person:
@@ -42,9 +58,7 @@ class Person:
         self.phone = phone
         self.address = address
         self.is_trade = is_trade
-
-    def introduce(self):
-        print("Hello!" + self.name)
+    
 
 class Quote:
     """Handles option selections, pricing calculations and quote printing """
@@ -225,53 +239,51 @@ def get_user_details() -> Person:
 def get_build_details():
     """
     This function will get user input on the details of what they want in their design
-     """
+    """
 
-    #Gets room upgrades
-    print("Here are the upgrades available:")
+    print("Here are the upgrades available")
 
-    print(f"Bathroom Options - \n    
-        Basic: no added cost \n    
-        Upgrade 1, + $2500
-        ")
+    print(f"""\nBathroom Options -  
+    0: {BATH_OP_BASE},+$0
+    1: {BATH_OP_ONE},+${PRICES['bathroom'][1]:,.2f}""")
     bathroom_option = check_valid_int("Selct option (0 - 1): ", min_val=0, max_val=1)
 
-    print(f"Kitchen Options - \n    
-        Basic 0, no added cost \n    
-        Upgrade 1, + $2000 \n    
-        Upgrade 2, + 3500 \n    
-        Upgrade 3, + $6000
-        ")
+    print(f"""\nKitchen Options -  
+    0: {KITC_OP_BASE},+$0
+    1: {KITC_OP_ONE},+${PRICES['kitchen'][1]:,.2f}
+    2: {KITC_OP_TWO},+${PRICES['kitchen'][2]:,.2f}
+    3: {KITC_OP_THREE},+${PRICES['kitchen'][2]:,.2f}""")
     kitchen_option = check_valid_int("Selct option (0 - 3): ", min_val=0, max_val=3)
 
-    print(f"Living Room - \n    
-        Basic: no added cost \n    
-        Upgrade 1, + $250 \n    
-        Upgrade 2, + $250
-        ")
+    print(f"""\nLiving Room Options-  
+    0: {LIVE_OP_BASE},+$0
+    1: {LIVE_OP_ONE},+${PRICES['livingroom'][1]:,.2f}
+    2: {LIVE_OP_TWO},+${PRICES['livingroom'][2]:,.2f}""")
     livingroom_option = check_valid_int("Selct option (0 - 2): ", min_val=0, max_val=2)
 
-    print("Heatpumps - ")
-    heatpump_living = input("Add 4.5kW Living Room Heat Pump?, +$2,500 \nSelect (y/n: ").strip().lower() == "y"
+    print("\nHeatpumps - ")
+    print (f"Would you like to add a {HEATPUMP_LIVE} heat pump in the living room?,+${PRICES['heatpump_living']:,.2f}?")
+    heatpump_living = check_valid_bool"Select (y/n): "
 
-    heatpump_bedroom = input("Add 2.5kW Bedroom Heat Pump?, +$1,800 \n Select (y/n): ").strip().lower() == "y"
-
-    #Get network details 
+    print (f"Would you like to add a {HEATPUMP_BED} heat pump in the bedroom room?,+${PRICES['heatpump_bedroom']:,.2f}?")
+    heatpump_bedroom = check_valid_bool"Select (y/n): "
 
     print("\nSocket Upgrades - ")
-    socket_1g = check_valid_int("Number of extra 1G sockets, $40 ea: ", min_val=0, max_val=12)
-    remaining_allowed = 12 - socket_1g
+    socket_1g_count = check_valid_int("Number of extra 1G sockets, ${PRICES['socket_1g']:,.2f} ea: ", min_val=0, max_val=12)
+    remaining_allowed = 12 - socket_1g_count
     if remaining_allowed > 0:
         print(f"(You can add up to {remaining_allowed} extra 2G sockets)")
-        socket_2g = check_valid_int("Number of extra 2G sockets, $50 ea: ", min_val=0, max_val=remaining_allowed)
+        socket_1g_count = check_valid_int("Number of extra 2G sockets, ${PRICES['socket_2g']:,.2f} ea: ", min_val=0, max_val=remaining_allowed)
+    else:
+        socket_1g_count = 0
 
-    print("\nSocket Upgrades - ")
+    print("\Network Upgrades - ")
     print ("Please note adding network points, will mean a $100 switch is also added automatically")
     while True:
-        network_points_count = get_valid_int("How many network points required? (0, or 2 - 8): ", min_val=0, max_val=8)
-        if network_points_count = 1
+        network_points_count = check_valid_int("How many network points required? (0, or 2 - 8): ", min_val=0, max_val=8)
+        if network_points_count == 1:
             print("Try again, you cannot select only 1 network point")
-        else
+        else:
             break
 
     return bathroom_option, kitchen_option, livingroom_option, heatpump_living, heatpump_bedroom, socket_1g_count, socket_2g_count, network_points_count
@@ -283,7 +295,7 @@ def view_saved_quotes(quotes_data: list):
         print("\nNo  quotes found.")
         return
 
-    print("SAVED QUOTES HISTORY")
+    print("SAVED QUOTES HISTORY ")
     for i, item in enumerate(quotes_data, start=1):
         cust = item["customer"]
         print(f"{i}. Ref: {item['ref_number']} | Name: {cust['name']} | Total: ${item['final_total']:,.2f}")
