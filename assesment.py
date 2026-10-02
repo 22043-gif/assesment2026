@@ -282,31 +282,44 @@ class Quote:
 
         #Prints prices, to 2dp as is convention, using items from costs dictionary 
         print()
-        print(f"Upgrades Subtotal (excl. GST): ${costs['cost_upgrades']:,.2f}")
-        print(f"GST on Upgrades (15%):         ${costs['cost_gst']:,.2f}")
-        print(f"Base Kit Cost:                 ${BASIC_KIT:,.2f}")
+        print(f"Upgrades Subtotal (excl. GST):   ${costs['cost_upgrades']:,.2f}")
+        print(f"GST on Upgrades (15%):           ${costs['cost_gst']:,.2f}")
+        print(f"Base Kit Cost:                   ${BASIC_KIT:,.2f}")
         #Only if trade member, else would be $0
         if self.customer.is_trade:
-            print(f"Trade Discount Amount:        -${costs['discount_amount']:,.2f}")
+            print(f"Trade Discount Amount:          -${costs['discount_amount']:,.2f}")
         print()
-        print(f"Total Estimate:                ${costs['final_total']:,.2f}")
+        print(f"Total Estimate:                  ${costs['final_total']:,.2f}")
         print("-" * 50)
-        print()
 
 #Functions
 
 #File functions
 def load_quotes() -> list:
-    """Description of func."""
+    """Reads saved quote records from the JSON file, if it exists
+
+    Returns:
+        list: A list of dictionaries (quotes) loaded from file, or an empty list if no file exists"""
+    #Checks if the target file exists on the path before attempting to open
     if QUOTE_FILE.exists():
+        #File is opened in read mode, safely because is encoded
+        #r to ensure file is Read, not overwriten
         with open(QUOTE_FILE, "r", encoding="utf-8") as f:
+            #JSON file contents parsed to Python list of dictionaries
+            #Returned for user
             return json.load(f)
 
+    #Return an empty list if the file does not exist, like first run
     return []
 
 def save_quotes(quotes_data: list):
-    """Discription of func"""
+    """Writes the current list of quote dictionaries to JSON file for storage
+
+    Args:
+        quotes_data (list): The list of quote dictionaries to be stored persistently"""
+    #File is opened in Write mode with with utf-8 encoding
     with open(QUOTE_FILE, "w", encoding="utf-8") as f:
+        #List to JSON file, formated with a 2-space indentation
         json.dump(quotes_data, f, indent=2)
 
 #Validation functions
@@ -388,7 +401,7 @@ def get_valid_bool(prompt: str) -> bool:
         #If it is a postive input
         elif choice in ["no", "n"]:
             return False
-        #If it is not a boolen value, feedback is given and loop will repeat
+        #If it is not a boolean value, feedback is given and loop will repeat
         print("Try again, that isn't an option.")
 
 
@@ -401,100 +414,164 @@ def get_user_details() -> Person:
     Returns:
         Person: an instance of the Person class, object holding the customer's validated details.
     """
-    print("Step 1. Please Enter Personal Details")
+    print("\nStep 1. Please Enter Personal Details") 
+    print("-" * 30)
+    #Calls the string validation function with the prompt and field name 
+    #Once valid text is entered set equal to varible
     name = get_valid_string("Name: ", "Name")
     phone = get_valid_string("Phone number: ", "Phone num") 
     address = get_valid_string("Address: ", "Address")
+    #Calls the boolean validation function with the prompt and field name 
+    #Once valid value is entered, varible set to True or False
     is_trade = get_valid_bool("Are you a trade member (y/n): ")
+    print()
 
+    #Returns the personal details to be stored in a quote  
     return Person(name, phone, address, is_trade)
 
-def get_build_details():
+def get_build_details() -> tuple:
     """
-    This function will get user input on the details of what they want in their design
+    Prompts the user to select room options, heat pumps, sockets, and network points.
+
+    Displays formatted upgrade pricing fetched directly from defined global constants.
+
+    Returns:
+        tuple: A tuple containing all the users selected options and amounts:
+               (bathroom_option, kitchen_option, livingroom_option, 
+                heatpump_living, heatpump_bedroom, socket_1g_count, 
+                socket_2g_count, network_points_count)
     """
 
     print("Step 2. Please Select any Upgrades to the Base Pack")
-
-    print(f"""\nBathroom Options -  
-    0: {BATH_OP_BASE},+$0
-    1: {BATH_OP_ONE},+${PRICES['bathroom'][1]:,.2f}""")
+    print("-" * 30)
+    #This multiline string will display all options for the bathroom
+    #Using global constants and dictionary to give descriptions and prices  
+    print(f"""Bathroom Options -  
+0: {BATH_OP_BASE},+$0
+1: {BATH_OP_ONE},+${PRICES['bathroom'][1]:,.2f}""")
+    #Uses validation function to get an valid integer, corresponding to a bathroom option 
     bathroom_option = get_valid_int("Select option (0 - 1): ", min_val=0, max_val=1)
 
+    #This multiline string will display all options for the kitchen
+    #Using global constants and dictionary to give descriptions and prices  
     print(f"""\nKitchen Options -  
-    0: {KITC_OP_BASE},+$0
-    1: {KITC_OP_ONE},+${PRICES['kitchen'][1]:,.2f}
-    2: {KITC_OP_TWO},+${PRICES['kitchen'][2]:,.2f}
-    3: {KITC_OP_THREE},+${PRICES['kitchen'][3]:,.2f}""")
+0: {KITC_OP_BASE},+$0
+1: {KITC_OP_ONE},+${PRICES['kitchen'][1]:,.2f}
+2: {KITC_OP_TWO},+${PRICES['kitchen'][2]:,.2f}
+3: {KITC_OP_THREE},+${PRICES['kitchen'][3]:,.2f}""")
+    #Uses validation function to get an valid integer, corresponding to a kitchen option 
     kitchen_option = get_valid_int("Select option (0 - 3): ", min_val=0, max_val=3)
 
+    #This multiline string will display all options for the living room
+    #Using global constants and dictionary to give descriptions and prices  
     print(f"""\nLiving Room Options-  
-    0: {LIVE_OP_BASE},+$0
-    1: {LIVE_OP_ONE},+${PRICES['livingroom'][1]:,.2f}
-    2: {LIVE_OP_TWO},+${PRICES['livingroom'][2]:,.2f}""")
+0: {LIVE_OP_BASE},+$0
+1: {LIVE_OP_ONE},+${PRICES['livingroom'][1]:,.2f}
+2: {LIVE_OP_TWO},+${PRICES['livingroom'][2]:,.2f}""")
+    #Uses validation function to get an integer, corresponding to a livingroom option 
     livingroom_option = get_valid_int("Select option (0 - 2): ", min_val=0, max_val=2)
 
     print("\nHeatpumps - ")
+
+    #Using global constants and dictionary to give a description and price  
     print (f"Would you like to add a {HEATPUMP_LIVE} heat pump in the living room?,+${PRICES['heatpump_living']:,.2f}?")
+    #Uses validation function to get an boolean value (True/False), corrosponding to yes/no
     heatpump_living = get_valid_bool("Select (y/n): ")
 
+    #Using global constants and dictionary to give a description and price  
     print (f"Would you like to add a {HEATPUMP_BED} heat pump in the bedroom room?,+${PRICES['heatpump_bedroom']:,.2f}?")
+    #Uses validation function to get an boolean value (True/False), corrosponding to yes/no
     heatpump_bedroom = get_valid_bool("Select (y/n): ")
 
     print("\nSocket Upgrades - ")
-    socket_1g_count = get_valid_int(f"Number of extra 1G sockets, ${PRICES['socket_1g']:,.2f} ea: ", min_val=0, max_val=12)
+    #Using dictionary to give the corrosponding price  
+    #Uses validation function to get an integer, corresponding to number of 1g sockets
+    socket_1g_count = get_valid_int(f"How many extra 1G sockets would you like, ${PRICES['socket_1g']:,.2f} ea: ", min_val=0, max_val=12)
+    #They are allowed maximum of 12 sockets total
+    #Number of 2g sockets allowed calculated from previous input of 1g sockets
     remaining_allowed = 12 - socket_1g_count
+    #If they ordered less than 12 1g sockets
     if remaining_allowed > 0:
+        #Prints the maximum amount they can order
         print(f"(You can add up to {remaining_allowed} extra 2G sockets)")
-        socket_2g_count = get_valid_int(f"Number of extra 2G sockets, ${PRICES['socket_2g']:,.2f} ea: ", min_val=0, max_val=remaining_allowed)
+        #Uses the value in the range to ensure they can't add too many
+        socket_2g_count = get_valid_int(f"How many extra 2G sockets would you like, ${PRICES['socket_2g']:,.2f} ea: ", min_val=0, max_val=remaining_allowed)
+    #If they order 12 1g sockets, can't order any 2g therefore set to 0
     else:
         print(f"(Sorry, you cannot add any 2G as you have reached the maximum number of sockets")
         socket_2g_count = 0
 
     print("\nNetwork Upgrades - ")
+    #If the customer adds network points, they will need a switch in the build
     print ("Please note adding 2 or more network points, will mean a $100 switch is also added automatically")
+    #Loop will continue until a valid integer is entered
     while True:
+        #Calls validation function to ensure input is whole number withen range 
         network_points_count = get_valid_int("How many network points required? (0, or 2 - 8): ", min_val=0, max_val=8)
+        #Because the can't just add 1 point, must not be considered valid
         if network_points_count == 1:
+            #Loop continues
             print("Try again, you cannot select only 1 network point")
         else:
+            #Returns a valid number of network points
             break
+    print()
 
+    #All the upgrade options are returned as a tuple to be used for quote
     return bathroom_option, kitchen_option, livingroom_option, heatpump_living, heatpump_bedroom, socket_1g_count, socket_2g_count, network_points_count
            
 #Function for returning stored data
 def view_saved_quotes(quotes_data: list):
-    """Description fo func"""
+    """Displays a summary list of all stored quote records, loaded from the JSON file
+
+    Args:
+        quotes_data (list): A list of dictionaries representing saved quotes in file.
+    """
+    #Checks if the list is empty, will return False, not displaying any records, ends function
     if not quotes_data:
         print("\nNo  quotes found.")
         return
 
-    print("SAVED QUOTES HISTORY ")
+    print("\nSaved Quote History ")
+    print("-" * 30)
+    #Iterates through saved quote dictionaries, i start at 1 for better readbilty for user
+    #Each dictionary is item
     for i, item in enumerate(quotes_data, start=1):
+        #Gets customer dictionary from nested dictionary
         cust = item["customer"]
+        #Print summary line featuring reference ID, customer name, and formatted total cost
         print(f"{i}. Ref: {item['ref_number']} | Name: {cust['name']} | Total: ${item['final_total']:,.2f}")
 
 
 def main():
+    """Serves as the primary function for the application interface
+
+    Loads existing quote history from file and presents an interactive main menu 
+    allowing users to create new quotes, view saved summaries, or exit cleanly
+    """
+    #Loads existing saved quotes from JSON file when opened
     quotes_data = load_quotes()
 
+    #Loop will repeatedly run to present the main application menu 
     while True:
+        #Prints all the available applications  
         print("-" * 50)
         print("Welcome to the Waimak Build Co, Quotation Creator!")
         print("1. Create New Quote")
         print("2. View Saved Quotes Summary")
         print("3. Exit")
         print("-" * 50)
+
+        #Collects input on desired menu
         choice = input("Choose an option (1-3): ").strip()
 
+        #If user choses to create quote
         if choice == "1":
-            print("\n" + "-" * 50)
-            print("Create New Quote")
-            print("-" * 50)
-            print()
 
+            #Runs function to collect personal details, instantiates Person object
             customer = get_user_details()
-            
+
+            #Unpacks tuple of build options returned from get_build_details()
             (bathroom_option, 
              kitchen_option, 
              livingroom_option, 
@@ -504,6 +581,7 @@ def main():
              socket_2g_count, 
              network_points_count) = get_build_details()
 
+            #Instantiates a new Quote object using collected user inputs
             new_quote = Quote(customer, 
                               bathroom_option, 
                               kitchen_option, 
@@ -513,22 +591,30 @@ def main():
                               socket_1g_count, 
                               socket_2g_count, 
                               network_points_count)
-            
-            new_quote.display_quote()
 
+            #Displays the financial details of Quote object
+            new_quote.display_quote()
+            #This converts the object to dictionary format, appeneds to list
             quotes_data.append(new_quote.object_to_dict())
+            #The updated list is writen back to JSON file to be stored
             save_quotes(quotes_data)
+            #Shows the addition went successfully
             print("Quote successfully saved to file!")
 
+        #If the user has chosen to view saved files
         elif choice == "2":
+            #Display summary list of all previously saved quotes by running function
             view_saved_quotes(quotes_data)
 
+        #If the user has completed their tasks and wants to exit application
         elif choice == "3":
+            #Prints exit message and break out of main loop to end program execution
             print("\nThank you for using Waimak Build Co Quotation Creator. Goodbye!")
             break
+        #To handle invalid menu selections outside of choices 
         else:
             print("Sorry, that isn't an option we provide")
 
-
+#Ensure main() executes only when script is run directly
 if __name__ == "__main__":
     main()
