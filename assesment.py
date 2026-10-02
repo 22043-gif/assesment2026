@@ -1,6 +1,6 @@
 #Stella Jones
 #02.09.2026
-#Programming Assesment 
+#Programming Assessment 
 #“Waimak Build Co ” Quotation Creator
 
 #Libraries 
@@ -62,10 +62,10 @@ class Person:
     """    
     def __init__(self, name: str, phone: str, address: str, is_trade: bool):
         """
-        Initialises a new instant of the class Person with their details
+        Initialises a new instance of the class Person with their details
         
         Args:
-            name (str): The full name of the custome
+            name (str): The full name of the customer
             phone (str): Contact phone number
             address (str): Personal or business address
             is_trade (bool): Indicating if the customer has a trade account 
@@ -88,8 +88,8 @@ class Quote:
                  heatpump_bedroom: bool, socket_1g_count: int, socket_2g_count: int,
                  network_points_count: int, ref_number: str = None):
         """
-        Initialises a new instant of the class Quote with the users option slection and
-        gentrates a refrance code
+        Initialises a new instant of the class Quote with the users option selection and
+        generates a reference code
 
         Args:
             customer (Person): The Person object holding contact details and trade status.
@@ -107,17 +107,17 @@ class Quote:
         #Shows object aggregation as Quote class contains a reference to an object of Person class as an attribute
         self.customer = customer
 
-        #Seting reference code
-        #For loeading an existing quote, keeps orginal ref and sets as an attribute 
+        #Setting reference code
+        #For loading an existing quote, keeps original ref and sets as an attribute 
         if ref_number:
             self.ref_number = ref_number
-        #Genrates new code quote not pulled from JSON file  
+        #Generates new code quote not pulled from JSON file  
         else:
-            #Sets varible equal to date in short format
+            #Sets variable equal to date in short format
             date_str = datetime.datetime.now().strftime("%d%m%Y")
-            #Sets varible equal to 3 chacters, not spaces, in uppercase
+            #Sets variable equal to 3 characters, not spaces, in uppercase
             clean_name = customer.name.replace(" ", "")[:3].upper()
-            #Sets varibles as attribute
+            #Sets variables as attribute
             self.ref_number = (clean_name + date_str)
         
         #Takes options passed as parameters and saves them as attributes inside object instance
@@ -139,13 +139,13 @@ class Quote:
         Returns: 
             float: Total sum of selected upgrades excluding base kit cost and GST.
         """
-        #Local varible set to 0 to inticate that initial cost of upgrades $0
+        #Local variable set to 0 to indicate that initial cost of upgrades $0
         total = 0.0
 
         #Room Upgrades
         #.get() searchs dictionary for room, then for a key matching selected option
         #It returns the associated value and adds it to total
-        #If key doesn't exist, as no upgrade = 0, .get() returns set defult value 0.0
+        #If key doesn't exist, as no upgrade = 0, .get() returns set default value 0.0
         #Total is now price of upgrades
         total += PRICES["bathroom"].get(self.bathroom_option, 0.0)
         total += PRICES["kitchen"].get(self.kitchen_option, 0.0)
@@ -161,17 +161,17 @@ class Quote:
             total += PRICES["heatpump_bedroom"]
 
         #Socket upgrades
-        #Finds number of 1g sockets selected and muiples by associated value per socket
+        #Finds number of 1g sockets selected and multiplies by associated value per socket
         #Added to total
         total += self.socket_1g_count * PRICES["socket_1g"]
-        #Finds number of 2g sockets selected and muiples by associated value per socket
+        #Finds number of 2g sockets selected and multiplies by associated value per socket
         #Added to total
         total += self.socket_2g_count * PRICES["socket_2g"]
 
         #Network upgrades
         #If user has selected additional points 
         if self.network_points_count > 0:
-            #Mutiples amount selected by cost per point, then adds cost of network switch
+            #Multiplies amount selected by cost per point, then adds cost of network switch
             #Added to total
             total += (self.network_points_count * PRICES["network_point"]) + PRICES["network_switch"]
         #If there are no points added, no network switch added to total 
@@ -193,25 +193,21 @@ class Quote:
         #Calculates initial cost by adding the base price to the upgrades 
         initial_cost_of_build = cost_upgrades + BASIC_KIT
 
-        #Sets the discount to 0
-        discount_amount = 0.0
         #If bool is True then is trade member 
         if self.customer.is_trade:
-            #Discount calculated using member rate muitpled by the subtotal
+            #Discount calculated using member rate multiplied by the subtotal
             discount_amount = initial_cost_of_build * TRADE_DISCOUNT_RATE
-            #If False then discount stays 0, no savings 
-        
-        #If bool is True then is trade member 
-        if self.customer.is_trade:
             #The discounted upgrade total is calculated to show amount after discount applied 
             discounted_upgrades = cost_upgrades * (1 - TRADE_DISCOUNT_RATE)
-        #If bool is False then is not trade member 
+
+        #If False then discount stays 0, no savings 
         else:
+            discount_amount = 0.0
             #Then the discounted cost is not differnt as nothing removed 
             discounted_upgrades = cost_upgrades
 
-        #Cost of GST is the discounted cost upgrades muitpled by rate
-        #Base cost is already inclusive of GST and therefor not to be inclueded when calculating its cost 
+        #Cost of GST is the discounted cost upgrades multiplied by rate
+        #Base cost is already inclusive of GST and therefore not to be included when calculating its cost 
         cost_gst = discounted_upgrades * GST
 
         #The final total is equal to upgrades + base price + GST - discount 
@@ -267,21 +263,58 @@ class Quote:
 
         #Section uses print staments to present a clear quote for user
         #Prints customer details, using items from costs dictionary 
+
+        #Header
         print("Thank you for using our quotation service, estimate incoming!\n")
         print("-" * 50)
         print("Waimak Build Co - Official Quote Estimation")
         print("-" * 50)
-        print(f"Quote Refference Number:         {self.ref_number}")
+
+        #Personal details
+        print("Personal details")
+        print("-" * 30)
+        print(f"Quote Reference Number:          {self.ref_number}")
         print(f"Customer Name:                   {self.customer.name}")
         print(f"Phone Number:                    {self.customer.phone}")
         print(f"Contact Address:                 {self.customer.address}")
+
         if self.customer.is_trade:
             print(f"Trade Account:                   Yes - 10% Discount")
         else: 
             print(f"Trade Account:                   No - 0% Discount")
 
-        #Prints prices, to 2dp as is convention, using items from costs dictionary 
-        print()
+        #Selected options
+        print("\nSelected Upgrades")
+        print("-" * 30)
+
+        print(f"Bathroom:                        Option {self.bathroom_option}")
+        print(f"Kitchen:                         Option {self.kitchen_option}")
+        print(f"Living Room:                     Option {self.livingroom_option}")
+
+        # Heat pumps
+        if self.heatpump_living:
+            print("Living Room Heat Pump:            Yes")
+        else:
+            print("Living Room Heat Pump:            No")
+
+        if self.heatpump_bedroom:
+            print("Bedroom Heat Pump:                Yes")
+        else:
+            print("Bedroom Heat Pump:                No")
+
+        # Sockets
+        print(f"Extra 1G Sockets:                x {self.socket_1g_count}")
+        print(f"Extra 2G Sockets:                x {self.socket_2g_count}")
+
+        # Network
+        if self.network_points_count > 0:
+            print(f"Network Points:                  x {self.network_points_count} + switch")
+        else:
+            print("Network Points:                   0")
+
+        #Cost summary
+        print("\nCost Summary - ")
+        print("-" * 30)
         print(f"Upgrades Subtotal (excl. GST):   ${costs['cost_upgrades']:,.2f}")
         print(f"GST on Upgrades (15%):           ${costs['cost_gst']:,.2f}")
         print(f"Base Kit Cost:                   ${BASIC_KIT:,.2f}")
@@ -302,12 +335,18 @@ def load_quotes() -> list:
         list: A list of dictionaries (quotes) loaded from file, or an empty list if no file exists"""
     #Checks if the target file exists on the path before attempting to open
     if QUOTE_FILE.exists():
-        #File is opened in read mode, safely because is encoded
-        #r to ensure file is Read, not overwriten
-        with open(QUOTE_FILE, "r", encoding="utf-8") as f:
-            #JSON file contents parsed to Python list of dictionaries
-            #Returned for user
-            return json.load(f)
+        #File is attempted to be opened in read mode safely
+        #r to ensure file is Read, not overwritten
+        try:
+            with open(QUOTE_FILE, "r", encoding="utf-8") as f:
+                #JSON file contents parsed to Python list of dictionaries
+                #Returned for user
+                return json.load(f)
+        #If the file contains empty files, half-written JSON, or corrupted data it can prevent file from being read
+        #This will catch errors produced and return empty lst rather than crashing
+        except (json.JSONDecodeError, OSError):
+            print("Issue with reading quotes file, starting with empty list")
+            return []
 
     #Return an empty list if the file does not exist, like first run
     return []
@@ -319,7 +358,7 @@ def save_quotes(quotes_data: list):
         quotes_data (list): The list of quote dictionaries to be stored persistently"""
     #File is opened in Write mode with with utf-8 encoding
     with open(QUOTE_FILE, "w", encoding="utf-8") as f:
-        #List to JSON file, formated with a 2-space indentation
+        #List to JSON file, formatted with a 2-space indentation
         json.dump(quotes_data, f, indent=2)
 
 #Validation functions
@@ -336,14 +375,14 @@ def get_valid_int(prompt: str, min_val: int = 0, max_val: int = None) -> int:
     Returns:
         int: a validated whole number that meets set constraints
     """
-    #Loop will run continuously until vaild integer is entered
+    #Loop will run continuously until valid integer is entered
     while True:
-        #User promted to enter number, leading/trailing white space removed 
+        #User prompted to enter number, leading/trailing white space removed 
         raw_input = input(prompt).strip()
         #Will attempt to convert to an integer data type
         try:
             val = int(raw_input)
-            #Reject if value is lower than minumum 
+            #Reject if value is lower than minimum 
             if val < min_val:
                 #Given feedback
                 print(f"Try again, value cannot be less than {min_val}.")
@@ -351,7 +390,7 @@ def get_valid_int(prompt: str, min_val: int = 0, max_val: int = None) -> int:
             #If no maximum defined, not caught
             elif max_val is not None and val > max_val:
                 print(f"Try again, value must be between {min_val} and {max_val}.")
-            #Meets critera 
+            #Meets criteria 
             else:
                 #A validated integer is returned
                 return val
@@ -365,25 +404,25 @@ def get_valid_string(prompt: str, field_name: str) -> str:
     """Ensures string text fields are not blank/whitespace only
     
     Args:
-        prompt (str): text shown to the user to promt input
+        prompt (str): text shown to the user to prompt input
         field_name (str): field name used in validation error messages 
 
     Returns:
         str: non-empty string entered by the user
     """
-    #Loop will run continuously until vaild text is entered
+    #Loop will run continuously until valid text is entered
     while True:
-        #User promted to enter text, leading/trailing white space removed 
+        #User prompted to enter text, leading/trailing white space removed 
         user_input = input(prompt).strip()
         #Will evaluate to True if non-empty in boolean checks
         if user_input:
             #Valid text is returned 
             return user_input
-        #If evaluates to False, will give feedback because input was blank or only whitespa
+        #If evaluates to False, will give feedback because input was blank or only whitespace
         print(f"Try again, {field_name} cannot be left blank.")
 
 def get_valid_bool(prompt: str) -> bool:
-    """Validates yes/no user inpout and converts the string to a boolean value
+    """Validates yes/no user input and converts the string to a boolean value
 
     Args:
         prompt (str): text shown to the user to prompt input
@@ -393,12 +432,12 @@ def get_valid_bool(prompt: str) -> bool:
     """
     #Loop will run continuously until valid yes/no entered 
     while True:
-        #User promted to enter y/n, leading/trailing white space removed, converet to lowercase
+        #User prompted to enter y/n, leading/trailing white space removed, convert to lowercase
         choice = input(prompt).strip().lower()
-        #If it is a postive input
+        #If it is a positive input
         if choice in ["yes", "y"]:
             return True
-        #If it is a postive input
+        #If it is a positive input
         elif choice in ["no", "n"]:
             return False
         #If it is not a boolean value, feedback is given and loop will repeat
@@ -417,11 +456,11 @@ def get_user_details() -> Person:
     print("\nStep 1. Please Enter Personal Details") 
     print("-" * 30)
     #Calls the string validation function with the prompt and field name 
-    #Once valid text is entered set equal to varible
+    #Once valid text is entered set equal to variable
     name = get_valid_string("Name: ", "Name")
     phone = get_valid_string("Phone number: ", "Phone num") 
     address = get_valid_string("Address: ", "Address")
-    #Calls the boolean validation function with the prompt and field name 
+    #Calls the boolean validation variable with the prompt and field name 
     #Once valid value is entered, varible set to True or False
     is_trade = get_valid_bool("Are you a trade member (y/n): ")
     print()
@@ -475,16 +514,16 @@ def get_build_details() -> tuple:
 
     #Using global constants and dictionary to give a description and price  
     print (f"Would you like to add a {HEATPUMP_LIVE} heat pump in the living room?,+${PRICES['heatpump_living']:,.2f}?")
-    #Uses validation function to get an boolean value (True/False), corrosponding to yes/no
+    #Uses validation function to get a boolean value (True/False), corresponding to yes/no
     heatpump_living = get_valid_bool("Select (y/n): ")
 
     #Using global constants and dictionary to give a description and price  
-    print (f"Would you like to add a {HEATPUMP_BED} heat pump in the bedroom room?,+${PRICES['heatpump_bedroom']:,.2f}?")
-    #Uses validation function to get an boolean value (True/False), corrosponding to yes/no
+    print (f"Would you like to add a {HEATPUMP_BED} heat pump in the bedroom?,+${PRICES['heatpump_bedroom']:,.2f}?")
+    #Uses validation function to get a boolean value (True/False), corresponding to yes/no
     heatpump_bedroom = get_valid_bool("Select (y/n): ")
 
     print("\nSocket Upgrades - ")
-    #Using dictionary to give the corrosponding price  
+    #Using dictionary to give the corresponding price  
     #Uses validation function to get an integer, corresponding to number of 1g sockets
     socket_1g_count = get_valid_int(f"How many extra 1G sockets would you like, ${PRICES['socket_1g']:,.2f} ea: ", min_val=0, max_val=12)
     #They are allowed maximum of 12 sockets total
@@ -498,7 +537,7 @@ def get_build_details() -> tuple:
         socket_2g_count = get_valid_int(f"How many extra 2G sockets would you like, ${PRICES['socket_2g']:,.2f} ea: ", min_val=0, max_val=remaining_allowed)
     #If they order 12 1g sockets, can't order any 2g therefore set to 0
     else:
-        print(f"(Sorry, you cannot add any 2G as you have reached the maximum number of sockets")
+        print(f"Sorry, you cannot add any 2G as you have reached the maximum number of sockets")
         socket_2g_count = 0
 
     print("\nNetwork Upgrades - ")
@@ -508,7 +547,7 @@ def get_build_details() -> tuple:
     while True:
         #Calls validation function to ensure input is whole number withen range 
         network_points_count = get_valid_int("How many network points required? (0, or 2 - 8): ", min_val=0, max_val=8)
-        #Because the can't just add 1 point, must not be considered valid
+        #Because they can't add only 1 point, must not be considered valid
         if network_points_count == 1:
             #Loop continues
             print("Try again, you cannot select only 1 network point")
@@ -529,12 +568,12 @@ def view_saved_quotes(quotes_data: list):
     """
     #Checks if the list is empty, will return False, not displaying any records, ends function
     if not quotes_data:
-        print("\nNo  quotes found.")
+        print("\nNo quotes found.")
         return
 
     print("\nSaved Quote History ")
     print("-" * 30)
-    #Iterates through saved quote dictionaries, i start at 1 for better readbilty for user
+    #Iterates through saved quote dictionaries, i start at 1 for better readability for user
     #Each dictionary is item
     for i, item in enumerate(quotes_data, start=1):
         #Gets customer dictionary from nested dictionary
@@ -565,7 +604,7 @@ def main():
         #Collects input on desired menu
         choice = input("Choose an option (1-3): ").strip()
 
-        #If user choses to create quote
+        #If user chooses to create quote
         if choice == "1":
 
             #Runs function to collect personal details, instantiates Person object
@@ -594,9 +633,9 @@ def main():
 
             #Displays the financial details of Quote object
             new_quote.display_quote()
-            #This converts the object to dictionary format, appeneds to list
+            #This converts the object to dictionary format, appends to list
             quotes_data.append(new_quote.object_to_dict())
-            #The updated list is writen back to JSON file to be stored
+            #The updated list is written back to JSON file to be stored
             save_quotes(quotes_data)
             #Shows the addition went successfully
             print("Quote successfully saved to file!")
@@ -613,7 +652,7 @@ def main():
             break
         #To handle invalid menu selections outside of choices 
         else:
-            print("Sorry, that isn't an option we provide")
+            print("\nSorry, that isn't an option we provide")
 
 #Ensure main() executes only when script is run directly
 if __name__ == "__main__":
