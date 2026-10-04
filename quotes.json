@@ -198,5 +198,65 @@
       "network_points_count": 3
     },
     "final_total": 74900.25
+  },
+  {
+    "ref_number": "JUI04102026",
+    "customer": {
+      "name": "Juila",
+      "phone": "2353464",
+      "address": "87 Nancy Drive",
+      "is_trade": true
+    },
+    "options": {
+      "bathroom_option": 0,
+      "kitchen_option": 3,
+      "livingroom_option": 2,
+      "heatpump_living": true,
+      "heatpump_bedroom": false,
+      "socket_1g_count": 4,
+      "socket_2g_count": 0,
+      "network_points_count": 6
+    },
+    "final_total": 77135.85
+  },
+  {
+    "ref_number": "GAB04102026",
+    "customer": {
+      "name": "Gabby",
+      "phone": "4354345",
+      "address": "uhfe8 er9",
+      "is_trade": true
+    },
+    "options": {
+      "bathroom_option": 0,
+      "kitchen_option": 3,
+      "livingroom_option": 2,
+      "heatpump_living": true,
+      "heatpump_bedroom": false,
+      "socket_1g_count": 4,
+      "socket_2g_count": 5,
+      "network_points_count": 5
+    },
+    "final_total": 77342.85
+  },
+  {
+    "ref_number": "LIA04102026",
+    "customer": {
+      "name": "Lia",
+      "phone": "323232332",
+      "address": "43n kjbjnklef",
+      "is_trade": false
+    },
+    "options": {
+      "bathroom_option": 1,
+      "kitchen_option": 1,
+      "livingroom_option": 1,
+      "heatpump_living": true,
+      "heatpump_bedroom": true,
+      "socket_1g_count": 6,
+      "socket_2g_count": 6,
+      "network_points_count": 8
+    },
+    "final_total": 86603.5
   }
 ]

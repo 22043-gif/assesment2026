@@ -21,6 +21,7 @@ QUOTE_FILE = Path("quotes.json")
 BASIC_KIT = 75000
 TRADE_DISCOUNT_RATE = 0.1
 GST = 0.15
+END = ["c", "cancel"]
 
 #A nested dictionary holding upgrade options, and keys to their respective prices
 PRICES = {
@@ -379,6 +380,11 @@ def get_valid_int(prompt: str, min_val: int = 0, max_val: int = None) -> int:
     while True:
         #User prompted to enter number, leading/trailing white space removed 
         raw_input = input(prompt).strip()
+
+        #User wants to exit
+        if raw_input.lower() in END:
+            return None
+        
         #Will attempt to convert to an integer data type
         try:
             val = int(raw_input)
@@ -414,6 +420,11 @@ def get_valid_string(prompt: str, field_name: str) -> str:
     while True:
         #User prompted to enter text, leading/trailing white space removed 
         user_input = input(prompt).strip()
+
+        #User wants to exit
+        if user_input.lower() in END:
+            return None
+
         #Will evaluate to True if non-empty in boolean checks
         if user_input:
             #Valid text is returned 
@@ -434,6 +445,11 @@ def get_valid_bool(prompt: str) -> bool:
     while True:
         #User prompted to enter y/n, leading/trailing white space removed, convert to lowercase
         choice = input(prompt).strip().lower()
+
+        #User wants to exit
+        if choice in END:
+            return None
+
         #If it is a positive input
         if choice in ["yes", "y"]:
             return True
@@ -455,14 +471,28 @@ def get_user_details() -> Person:
     """
     print("\nStep 1. Please Enter Personal Details") 
     print("-" * 30)
+    print("Enter c/cancle at any time to end your quote")
     #Calls the string validation function with the prompt and field name 
     #Once valid text is entered set equal to variable
     name = get_valid_string("Name: ", "Name")
-    phone = get_valid_string("Phone number: ", "Phone num") 
+    #Catches when users want to exit quote, validation returns none
+    if name is None:
+        return None
+
+    phone = get_valid_string("Phone number: ", "Phone num")
+    if phone is None:
+        return None
+ 
     address = get_valid_string("Address: ", "Address")
+    if address is None:
+        return None
+
     #Calls the boolean validation variable with the prompt and field name 
     #Once valid value is entered, varible set to True or False
     is_trade = get_valid_bool("Are you a trade member (y/n): ")
+    if is_trade is None:
+        return None
+
     print()
 
     #Returns the personal details to be stored in a quote  
@@ -483,6 +513,7 @@ def get_build_details() -> tuple:
 
     print("Step 2. Please Select any Upgrades to the Base Pack")
     print("-" * 30)
+    print("Enter c/cancle at any time to end your quote")
     #This multiline string will display all options for the bathroom
     #Using global constants and dictionary to give descriptions and prices  
     print(f"""Bathroom Options -  
@@ -490,6 +521,8 @@ def get_build_details() -> tuple:
 1: {BATH_OP_ONE},+${PRICES['bathroom'][1]:,.2f}""")
     #Uses validation function to get an valid integer, corresponding to a bathroom option 
     bathroom_option = get_valid_int("Select option (0 - 1): ", min_val=0, max_val=1)
+    if bathroom_option is None:
+        return None
 
     #This multiline string will display all options for the kitchen
     #Using global constants and dictionary to give descriptions and prices  
@@ -500,7 +533,9 @@ def get_build_details() -> tuple:
 3: {KITC_OP_THREE},+${PRICES['kitchen'][3]:,.2f}""")
     #Uses validation function to get an valid integer, corresponding to a kitchen option 
     kitchen_option = get_valid_int("Select option (0 - 3): ", min_val=0, max_val=3)
-
+    if kitchen_option is None:
+        return None
+    
     #This multiline string will display all options for the living room
     #Using global constants and dictionary to give descriptions and prices  
     print(f"""\nLiving Room Options-  
@@ -509,6 +544,8 @@ def get_build_details() -> tuple:
 2: {LIVE_OP_TWO},+${PRICES['livingroom'][2]:,.2f}""")
     #Uses validation function to get an integer, corresponding to a livingroom option 
     livingroom_option = get_valid_int("Select option (0 - 2): ", min_val=0, max_val=2)
+    if livingroom_option is None:
+        return None
 
     print("\nHeatpumps - ")
 
@@ -516,16 +553,23 @@ def get_build_details() -> tuple:
     print (f"Would you like to add a {HEATPUMP_LIVE} heat pump in the living room?,+${PRICES['heatpump_living']:,.2f}?")
     #Uses validation function to get a boolean value (True/False), corresponding to yes/no
     heatpump_living = get_valid_bool("Select (y/n): ")
+    if heatpump_living is None:
+        return None
 
     #Using global constants and dictionary to give a description and price  
     print (f"Would you like to add a {HEATPUMP_BED} heat pump in the bedroom?,+${PRICES['heatpump_bedroom']:,.2f}?")
     #Uses validation function to get a boolean value (True/False), corresponding to yes/no
     heatpump_bedroom = get_valid_bool("Select (y/n): ")
+    if heatpump_bedroom is None:
+        return None
 
     print("\nSocket Upgrades - ")
     #Using dictionary to give the corresponding price  
     #Uses validation function to get an integer, corresponding to number of 1g sockets
     socket_1g_count = get_valid_int(f"How many extra 1G sockets would you like, ${PRICES['socket_1g']:,.2f} ea: ", min_val=0, max_val=12)
+    if socket_1g_count is None:
+        return None
+
     #They are allowed maximum of 12 sockets total
     #Number of 2g sockets allowed calculated from previous input of 1g sockets
     remaining_allowed = 12 - socket_1g_count
@@ -535,6 +579,9 @@ def get_build_details() -> tuple:
         print(f"(You can add up to {remaining_allowed} extra 2G sockets)")
         #Uses the value in the range to ensure they can't add too many
         socket_2g_count = get_valid_int(f"How many extra 2G sockets would you like, ${PRICES['socket_2g']:,.2f} ea: ", min_val=0, max_val=remaining_allowed)
+        if socket_2g_count is None:
+            return None
+    
     #If they order 12 1g sockets, can't order any 2g therefore set to 0
     else:
         print(f"Sorry, you cannot add any 2G as you have reached the maximum number of sockets")
@@ -551,6 +598,8 @@ def get_build_details() -> tuple:
         if network_points_count == 1:
             #Loop continues
             print("Try again, you cannot select only 1 network point")
+        elif network_points_count is None:
+            return None    
         else:
             #Returns a valid number of network points
             break
@@ -581,6 +630,73 @@ def view_saved_quotes(quotes_data: list):
         #Print summary line featuring reference ID, customer name, and formatted total cost
         print(f"{i}. Ref: {item['ref_number']} | Name: {cust['name']} | Total: ${item['final_total']:,.2f}")
 
+def save_formatted_quote(quote: Quote):
+    """
+    Creates and saves a clean text version of the quotation that the user can open and print
+
+    Args:
+        quote (Quote): The Quote object containing all customer details and selections
+    """
+    costs = quote.calculate_total()
+    
+    #Create a filename using the reference number
+    filename = f"Quote_{quote.ref_number}"
+
+    #Opens the new file in write mode so the formatted quote can be saved
+    with open(filename, "w", encoding="utf-8") as f:
+
+        #Writes the company information at the top
+        f.write("-" * 65 + "\n\n")
+        f.write("Waimak Build Co\n")
+        f.write("Rangiora, North Canterbury\n")
+        f.write("Phone: 03 1234567\n")
+        f.write("Email: Office@wbc.co.nz\n\n")
+        f.write("-" * 65 + "\n\n")
+
+        #Writes customers personal input and reference number
+        f.write(f"Quote Reference:  {quote.ref_number}\n")
+        f.write(f"Date Generated:   {datetime.datetime.now().strftime('%d/%m/%Y')}\n\n")
+        f.write("Customer Details\n")
+        f.write("-" * 40 + "\n")
+        f.write(f"Name:             {quote.customer.name}\n")
+        f.write(f"Phone:            {quote.customer.phone}\n")
+        f.write(f"Address:          {quote.customer.address}\n")
+        f.write(f"Trade Account:    {'Yes (10% Discount)' if quote.customer.is_trade else 'No'}\n\n")
+
+        #Writes the section showing all upgrades the customer selected 
+        f.write("Selected Upgrades\n")
+        f.write("-" * 40 + "\n")
+        f.write(f"Bathroom:               Option {quote.bathroom_option}\n")
+        f.write(f"Kitchen:                Option {quote.kitchen_option}\n")
+        f.write(f"Living Room:            Option {quote.livingroom_option}\n")
+        f.write(f"Living Room Heat Pump:  {'Yes' if quote.heatpump_living else 'No'}\n")
+        f.write(f"Bedroom Heat Pump:      {'Yes' if quote.heatpump_bedroom else 'No'}\n")
+        f.write(f"Extra 1G Sockets:       {quote.socket_1g_count}\n")
+        f.write(f"Extra 2G Sockets:       {quote.socket_2g_count}\n")
+        f.write(f"Network Points:         {quote.network_points_count}")
+        #Doesn't write switch if there were no points selected 
+        if quote.network_points_count > 0:
+            f.write(" (+ Network Switch)\n")
+        else:
+            f.write("\n")
+        f.write("\n")
+
+        #Writes the cost summary section using the values calculated before
+        f.write("Cost Summary\n")
+        f.write("-" * 40 + "\n")
+        f.write(f"Upgrades (excl. GST):   ${costs['cost_upgrades']:,.2f}\n")
+        f.write(f"GST on Upgrades (15%):  ${costs['cost_gst']:,.2f}\n")
+        f.write(f"Base Kit Cost:          ${BASIC_KIT:,.2f}\n")
+        #Will only write the discount line if trade member
+        if quote.customer.is_trade:
+            f.write(f"Trade Discount (10%):   -${costs['discount_amount']:,.2f}\n")
+        f.write("\n")
+        f.write(f"Total (incl. GST):      ${costs['final_total']:,.2f}\n")
+        f.write("-" * 65 + "\n")
+        f.write("Thank you for choosing Waimak Build Co\n")
+
+    #Confirms with the user the quote has been saved and gives them the filename
+    print(f"\nThe quote saved as: {filename}, you can open this file and print it if needed ")
 
 def main():
     """Serves as the primary function for the application interface
@@ -610,6 +726,17 @@ def main():
             #Runs function to collect personal details, instantiates Person object
             customer = get_user_details()
 
+            #Lets quote end without being submitted
+            if customer is None:
+                print("\nQuote cancelled, returning to main menu\n")
+                continue
+
+            #Lets quote end without being submitted
+            build_details = get_build_details()
+            if build_details is None:
+                print("\nQuote cancelled, returning to main menu\n")
+                continue
+
             #Unpacks tuple of build options returned from get_build_details()
             (bathroom_option, 
              kitchen_option, 
@@ -618,7 +745,7 @@ def main():
              heatpump_bedroom, 
              socket_1g_count, 
              socket_2g_count, 
-             network_points_count) = get_build_details()
+             network_points_count) = build_details
 
             #Instantiates a new Quote object using collected user inputs
             new_quote = Quote(customer, 
@@ -638,7 +765,12 @@ def main():
             #The updated list is written back to JSON file to be stored
             save_quotes(quotes_data)
             #Shows the addition went successfully
-            print("Quote successfully saved to file!")
+            print("Quote successfully saved to file!\n")
+
+            if get_valid_bool("Would you like a file of your quote to print? (y/n): "):
+                save_formatted_quote(new_quote)
+
+
 
         #If the user has chosen to view saved files
         elif choice == "2":
