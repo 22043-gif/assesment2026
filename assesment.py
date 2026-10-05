@@ -294,14 +294,14 @@ class Quote:
 
         # Heat pumps
         if self.heatpump_living:
-            print("Living Room Heat Pump:            Yes")
+            print("Living Room Heat Pump:           Yes")
         else:
-            print("Living Room Heat Pump:            No")
+            print("Living Room Heat Pump:           No")
 
         if self.heatpump_bedroom:
-            print("Bedroom Heat Pump:                Yes")
+            print("Bedroom Heat Pump:               Yes")
         else:
-            print("Bedroom Heat Pump:                No")
+            print("Bedroom Heat Pump:               No")
 
         # Sockets
         print(f"Extra 1G Sockets:                x {self.socket_1g_count}")
