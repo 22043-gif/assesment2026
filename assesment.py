@@ -471,7 +471,7 @@ def get_user_details() -> Person:
     """
     print("\nStep 1. Please Enter Personal Details") 
     print("-" * 30)
-    print("Enter c/cancle at any time to end your quote")
+    print("Enter c/cancel at any time to end your quote")
     #Calls the string validation function with the prompt and field name 
     #Once valid text is entered set equal to variable
     name = get_valid_string("Name: ", "Name")
@@ -513,7 +513,7 @@ def get_build_details() -> tuple:
 
     print("Step 2. Please Select any Upgrades to the Base Pack")
     print("-" * 30)
-    print("Enter c/cancle at any time to end your quote")
+    print("Enter c/cancel at any time to end your quote")
     #This multiline string will display all options for the bathroom
     #Using global constants and dictionary to give descriptions and prices  
     print(f"""Bathroom Options -  
