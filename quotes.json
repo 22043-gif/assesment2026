@@ -18,5 +18,25 @@
       "network_points_count": 3
     },
     "final_total": 77342.85
+  },
+  {
+    "ref_number": "JOH06102026",
+    "customer": {
+      "name": "John Doe",
+      "phone": "343543636",
+      "address": "78 Place Roaf",
+      "is_trade": false
+    },
+    "options": {
+      "bathroom_option": 1,
+      "kitchen_option": 0,
+      "livingroom_option": 0,
+      "heatpump_living": false,
+      "heatpump_bedroom": true,
+      "socket_1g_count": 3,
+      "socket_2g_count": 0,
+      "network_points_count": 6
+    },
+    "final_total": 80543.0
   }
 ]

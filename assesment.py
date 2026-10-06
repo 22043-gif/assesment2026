@@ -393,11 +393,11 @@ def get_valid_int(prompt: str, min_val: int = 0, max_val: int = None) -> int:
             #Reject if value is lower than minimum 
             if val < min_val:
                 #Given feedback
-                print(f"Try again, value cannot be less than {min_val}.")
+                print(f"Try again, value cannot be less than {min_val}")
             #Reject if value is higher than maximum, if one is defined
             #If no maximum defined, not caught
             elif max_val is not None and val > max_val:
-                print(f"Try again, value must be {min_val} >/= and </= {max_val}.")
+                print(f"Try again, must be a whole number >/= {min_val} and </= {max_val}")
             #Meets criteria 
             else:
                 #A validated integer is returned
@@ -405,7 +405,7 @@ def get_valid_int(prompt: str, min_val: int = 0, max_val: int = None) -> int:
         #Handles non-integer input like floats, letters, or special characters 
         #When produces an error, will catch, provide feedback and prompt again
         except ValueError:
-            print("Try again, that was invalid input and not a whole number.")
+            print("Try again, that was invalid input and not a whole number")
 
 
 def get_valid_string(prompt: str, field_name: str) -> str:
@@ -432,7 +432,7 @@ def get_valid_string(prompt: str, field_name: str) -> str:
             #Valid text is returned 
             return user_input
         #If evaluates to False, will give feedback because input was blank or only whitespace
-        print(f"Try again, {field_name} cannot be left blank.")
+        print(f"Try again, {field_name} cannot be left blank")
 
 def get_valid_bool(prompt: str) -> bool:
     """Validates yes/no user input and converts the string to a boolean value
@@ -569,7 +569,7 @@ def get_build_details() -> tuple:
     #Using dictionary to give the corresponding price  
     #Uses validation function to get an integer, corresponding to number of 1g sockets
     print(f"Ýou can add up 12 sockets total, this is including 1G +${PRICES['socket_1g']:,.2f} ea, and 2G +${PRICES['socket_2g']:,.2f} ea")
-    socket_1g_count = get_valid_int(f"How many extra 1G sockets would you like?", min_val=0, max_val=12)
+    socket_1g_count = get_valid_int(f"How many extra 1G sockets would you like: ", min_val=0, max_val=12)
     if socket_1g_count is None:
         return None
 
@@ -581,7 +581,7 @@ def get_build_details() -> tuple:
         #Prints the maximum amount they can order
         print(f"(You can add up to {remaining_allowed} extra 2G sockets)")
         #Uses the value in the range to ensure they can't add too many
-        socket_2g_count = get_valid_int(f"How many extra 2G sockets would you like?", min_val=0, max_val=remaining_allowed)
+        socket_2g_count = get_valid_int(f"How many extra 2G sockets would you like: ", min_val=0, max_val=remaining_allowed)
         if socket_2g_count is None:
             return None
     
@@ -592,8 +592,8 @@ def get_build_details() -> tuple:
 
     print("\nNetwork Upgrades - ")
     #If the customer adds network points, they will need a switch in the build
-    print(f"Ýou can add 2 - 8 sockets, or none, +${PRICES['network_point']:,.2f} ea")
-    print (f"Please note, adding 2 or more network points will mean a ${PRICES['network_switch']:,.2f} switch is added automatically")
+    print(f"Ýou can add 2 - 8 sockets or none, +${PRICES['network_point']:,.2f} ea")
+    print (f"Please note, adding more network points will mean a ${PRICES['network_switch']:,.2f} switch is added automatically")
     #Loop will continue until a valid integer is entered
     while True:
         #Calls validation function to ensure input is whole number within range 
