@@ -3,6 +3,8 @@
 #Programming Assessment 
 #“Waimak Build Co ” Quotation Creator
 
+#V2
+
 #Libraries 
 
 #Imports module from Python's library, allowing for use of built-in classes and functions related to time
@@ -395,7 +397,7 @@ def get_valid_int(prompt: str, min_val: int = 0, max_val: int = None) -> int:
             #Reject if value is higher than maximum, if one is defined
             #If no maximum defined, not caught
             elif max_val is not None and val > max_val:
-                print(f"Try again, value must be between {min_val} and {max_val}.")
+                print(f"Try again, value must be {min_val} >/= and </= {max_val}.")
             #Meets criteria 
             else:
                 #A validated integer is returned
@@ -505,7 +507,7 @@ def get_build_details() -> tuple:
     Displays formatted upgrade pricing fetched directly from defined global constants.
 
     Returns:
-        tuple: A tuple containing all the users selected options and amounts:
+        tuple: A tuple containing all the user's selected options and amounts:
                (bathroom_option, kitchen_option, livingroom_option, 
                 heatpump_living, heatpump_bedroom, socket_1g_count, 
                 socket_2g_count, network_points_count)
@@ -517,8 +519,8 @@ def get_build_details() -> tuple:
     #This multiline string will display all options for the bathroom
     #Using global constants and dictionary to give descriptions and prices  
     print(f"""Bathroom Options -  
-0: {BATH_OP_BASE},+$0
-1: {BATH_OP_ONE},+${PRICES['bathroom'][1]:,.2f}""")
+0: {BATH_OP_BASE}, +$0
+1: {BATH_OP_ONE}, +${PRICES['bathroom'][1]:,.2f}""")
     #Uses validation function to get an valid integer, corresponding to a bathroom option 
     bathroom_option = get_valid_int("Select option (0 - 1): ", min_val=0, max_val=1)
     if bathroom_option is None:
@@ -527,21 +529,21 @@ def get_build_details() -> tuple:
     #This multiline string will display all options for the kitchen
     #Using global constants and dictionary to give descriptions and prices  
     print(f"""\nKitchen Options -  
-0: {KITC_OP_BASE},+$0
-1: {KITC_OP_ONE},+${PRICES['kitchen'][1]:,.2f}
-2: {KITC_OP_TWO},+${PRICES['kitchen'][2]:,.2f}
-3: {KITC_OP_THREE},+${PRICES['kitchen'][3]:,.2f}""")
-    #Uses validation function to get an valid integer, corresponding to a kitchen option 
+0: {KITC_OP_BASE}, +$0
+1: {KITC_OP_ONE}, +${PRICES['kitchen'][1]:,.2f}
+2: {KITC_OP_TWO}, +${PRICES['kitchen'][2]:,.2f}
+3: {KITC_OP_THREE}, +${PRICES['kitchen'][3]:,.2f}""")
+    #Uses validation function to get a valid integer, corresponding to a kitchen option 
     kitchen_option = get_valid_int("Select option (0 - 3): ", min_val=0, max_val=3)
     if kitchen_option is None:
         return None
     
     #This multiline string will display all options for the living room
     #Using global constants and dictionary to give descriptions and prices  
-    print(f"""\nLiving Room Options-  
-0: {LIVE_OP_BASE},+$0
-1: {LIVE_OP_ONE},+${PRICES['livingroom'][1]:,.2f}
-2: {LIVE_OP_TWO},+${PRICES['livingroom'][2]:,.2f}""")
+    print(f"""\nLiving Room Options -  
+0: {LIVE_OP_BASE}, +$0
+1: {LIVE_OP_ONE}, +${PRICES['livingroom'][1]:,.2f}
+2: {LIVE_OP_TWO}, +${PRICES['livingroom'][2]:,.2f}""")
     #Uses validation function to get an integer, corresponding to a livingroom option 
     livingroom_option = get_valid_int("Select option (0 - 2): ", min_val=0, max_val=2)
     if livingroom_option is None:
@@ -550,14 +552,14 @@ def get_build_details() -> tuple:
     print("\nHeatpumps - ")
 
     #Using global constants and dictionary to give a description and price  
-    print (f"Would you like to add a {HEATPUMP_LIVE} heat pump in the living room?,+${PRICES['heatpump_living']:,.2f}?")
+    print (f"Would you like to add a {HEATPUMP_LIVE} heatpump in the living room? +${PRICES['heatpump_living']:,.2f}?")
     #Uses validation function to get a boolean value (True/False), corresponding to yes/no
     heatpump_living = get_valid_bool("Select (y/n): ")
     if heatpump_living is None:
         return None
 
     #Using global constants and dictionary to give a description and price  
-    print (f"Would you like to add a {HEATPUMP_BED} heat pump in the bedroom?,+${PRICES['heatpump_bedroom']:,.2f}?")
+    print (f"Would you like to add a {HEATPUMP_BED} heat pump in the bedroom? +${PRICES['heatpump_bedroom']:,.2f}?")
     #Uses validation function to get a boolean value (True/False), corresponding to yes/no
     heatpump_bedroom = get_valid_bool("Select (y/n): ")
     if heatpump_bedroom is None:
@@ -566,7 +568,8 @@ def get_build_details() -> tuple:
     print("\nSocket Upgrades - ")
     #Using dictionary to give the corresponding price  
     #Uses validation function to get an integer, corresponding to number of 1g sockets
-    socket_1g_count = get_valid_int(f"How many extra 1G sockets would you like, ${PRICES['socket_1g']:,.2f} ea: ", min_val=0, max_val=12)
+    print(f"Ýou can add up 12 sockets total, this is including 1G +${PRICES['socket_1g']:,.2f} ea, and 2G +${PRICES['socket_2g']:,.2f} ea")
+    socket_1g_count = get_valid_int(f"How many extra 1G sockets would you like?", min_val=0, max_val=12)
     if socket_1g_count is None:
         return None
 
@@ -578,7 +581,7 @@ def get_build_details() -> tuple:
         #Prints the maximum amount they can order
         print(f"(You can add up to {remaining_allowed} extra 2G sockets)")
         #Uses the value in the range to ensure they can't add too many
-        socket_2g_count = get_valid_int(f"How many extra 2G sockets would you like, ${PRICES['socket_2g']:,.2f} ea: ", min_val=0, max_val=remaining_allowed)
+        socket_2g_count = get_valid_int(f"How many extra 2G sockets would you like?", min_val=0, max_val=remaining_allowed)
         if socket_2g_count is None:
             return None
     
@@ -589,12 +592,13 @@ def get_build_details() -> tuple:
 
     print("\nNetwork Upgrades - ")
     #If the customer adds network points, they will need a switch in the build
-    print ("Please note adding 2 or more network points, will mean a $100 switch is also added automatically")
+    print(f"Ýou can add 2 - 8 sockets, or none, +${PRICES['network_point']:,.2f} ea")
+    print (f"Please note, adding 2 or more network points will mean a ${PRICES['network_switch']:,.2f} switch is added automatically")
     #Loop will continue until a valid integer is entered
     while True:
-        #Calls validation function to ensure input is whole number withen range 
-        network_points_count = get_valid_int("How many network points required? (0, or 2 - 8): ", min_val=0, max_val=8)
-        #Because they can't add only 1 point, must not be considered valid
+        #Calls validation function to ensure input is whole number within range 
+        network_points_count = get_valid_int("How many network points required?: ", min_val=0, max_val=8)
+        #Because they can't add only 1 point, it must not be considered valid
         if network_points_count == 1:
             #Loop continues
             print("Try again, you cannot select only 1 network point")
