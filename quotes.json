@@ -38,5 +38,25 @@
       "network_points_count": 6
     },
     "final_total": 80543.0
+  },
+  {
+    "ref_number": "RAN06102026",
+    "customer": {
+      "name": "Rand\u00fd",
+      "phone": "43634645",
+      "address": "56 Place Right",
+      "is_trade": true
+    },
+    "options": {
+      "bathroom_option": 1,
+      "kitchen_option": 2,
+      "livingroom_option": 1,
+      "heatpump_living": true,
+      "heatpump_bedroom": false,
+      "socket_1g_count": 4,
+      "socket_2g_count": 5,
+      "network_points_count": 4
+    },
+    "final_total": 75772.35
   }
 ]

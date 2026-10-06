@@ -189,39 +189,35 @@ class Quote:
             dict: Dictionary containing itemised costs('cost_upgrades', 'cost_gst', 
                   'initial_cost_of_build', 'discount_amount', 'final_total').
          """
-
+        
         #Runs the previous method to calculate cost of upgrades and sets as attribute
         cost_upgrades = self.calculate_cost_upgrades()
-
-        #Calculates initial cost by adding the base price to the upgrades 
-        initial_cost_of_build = cost_upgrades + BASIC_KIT
+        #Gives cost of basic kit excluding gst
+        cost_base = BASIC_KIT * (1 - GST)
+        initial_cost_of_build = cost_upgrades + cost_base
 
         #If bool is True then is trade member 
         if self.customer.is_trade:
-            #Discount calculated using member rate multiplied by the subtotal
-            discount_amount = initial_cost_of_build * TRADE_DISCOUNT_RATE
-            #The discounted upgrade total is calculated to show amount after discount applied 
-            discounted_upgrades = cost_upgrades * (1 - TRADE_DISCOUNT_RATE)
+            #total GST and total discount 
+            discount_amount = TRADE_DISCOUNT_RATE * initial_cost_of_build
+            cost_gst = GST * (initial_cost_of_build - discount_amount)
+
 
         #If False then discount stays 0, no savings 
         else:
             discount_amount = 0.0
-            #Then the discounted cost is not differnt as nothing removed 
-            discounted_upgrades = cost_upgrades
-
-        #Cost of GST is the discounted cost upgrades multiplied by rate
-        #Base cost is already inclusive of GST and therefore not to be included when calculating its cost 
-        cost_gst = discounted_upgrades * GST
-
-        #The final total is equal to upgrades + base price + GST - discount 
+            cost_gst = GST * initial_cost_of_build
+    
         final_total = initial_cost_of_build - discount_amount + cost_gst
+
 
         #A dictionary containing these amounts is returned to be used to produce a quote
         return {
             "cost_upgrades": cost_upgrades,
+            "cost_base": cost_base,
             "cost_gst": cost_gst,
-            "initial_cost_of_build": initial_cost_of_build,
             "discount_amount": discount_amount,
+            "initial_cost_of_build": initial_cost_of_build,
             "final_total": final_total      
         }
 
@@ -314,16 +310,18 @@ class Quote:
             print(f"Network Points:                  x {self.network_points_count} + switch")
         else:
             print("Network Points:                   0")
-
+    
         #Cost summary
         print("\nCost Summary - ")
         print("-" * 30)
         print(f"Upgrades Subtotal (excl. GST):   ${costs['cost_upgrades']:,.2f}")
-        print(f"GST on Upgrades (15%):           ${costs['cost_gst']:,.2f}")
-        print(f"Base Kit Cost:                   ${BASIC_KIT:,.2f}")
+        print(f"Base Kit Subtotal (excl GST):    ${costs['cost_base']:,.2f}")
+        print()
+        print(f"Subtotal of Build (excl GST):    ${costs['initial_cost_of_build']:,.2f}")
         #Only if trade member, else would be $0
         if self.customer.is_trade:
-            print(f"Trade Discount Amount:          -${costs['discount_amount']:,.2f}")
+            print(f"Trade Discount of Build:        -${costs['discount_amount']:,.2f}")
+        print(f"GST on Build:                    ${costs['cost_gst']:,.2f}")
         print()
         print(f"Total Estimate:                  ${costs['final_total']:,.2f}")
         print("-" * 50)
@@ -658,26 +656,26 @@ def save_formatted_quote(quote: Quote):
         f.write("-" * 65 + "\n\n")
 
         #Writes customers personal input and reference number
-        f.write(f"Quote Reference:  {quote.ref_number}\n")
-        f.write(f"Date Generated:   {datetime.datetime.now().strftime('%d/%m/%Y')}\n\n")
+        f.write(f"Quote Reference:      {quote.ref_number}\n")
+        f.write(f"Date Generated:       {datetime.datetime.now().strftime('%d/%m/%Y')}\n\n")
         f.write("Customer Details\n")
         f.write("-" * 40 + "\n")
-        f.write(f"Name:             {quote.customer.name}\n")
-        f.write(f"Phone:            {quote.customer.phone}\n")
-        f.write(f"Address:          {quote.customer.address}\n")
-        f.write(f"Trade Account:    {'Yes (10% Discount)' if quote.customer.is_trade else 'No'}\n\n")
-
+        f.write(f"Name:                 {quote.customer.name}\n")
+        f.write(f"Phone:                {quote.customer.phone}\n")
+        f.write(f"Address:              {quote.customer.address}\n")
+        f.write(f"Trade Account:        {'Yes (10% Discount)' if quote.customer.is_trade else 'No'}\n\n")
+    
         #Writes the section showing all upgrades the customer selected 
         f.write("Selected Upgrades\n")
         f.write("-" * 40 + "\n")
-        f.write(f"Bathroom:               Option {quote.bathroom_option}\n")
-        f.write(f"Kitchen:                Option {quote.kitchen_option}\n")
-        f.write(f"Living Room:            Option {quote.livingroom_option}\n")
-        f.write(f"Living Room Heat Pump:  {'Yes' if quote.heatpump_living else 'No'}\n")
-        f.write(f"Bedroom Heat Pump:      {'Yes' if quote.heatpump_bedroom else 'No'}\n")
-        f.write(f"Extra 1G Sockets:       {quote.socket_1g_count}\n")
-        f.write(f"Extra 2G Sockets:       {quote.socket_2g_count}\n")
-        f.write(f"Network Points:         {quote.network_points_count}")
+        f.write(f"Bathroom:                   Option {quote.bathroom_option}\n")
+        f.write(f"Kitchen:                    Option {quote.kitchen_option}\n")
+        f.write(f"Living Room:                Option {quote.livingroom_option}\n")
+        f.write(f"Living Room Heat Pump:      {'Yes' if quote.heatpump_living else 'No'}\n")
+        f.write(f"Bedroom Heat Pump:          {'Yes' if quote.heatpump_bedroom else 'No'}\n")
+        f.write(f"Extra 1G Sockets:           {quote.socket_1g_count}\n")
+        f.write(f"Extra 2G Sockets:           {quote.socket_2g_count}\n")
+        f.write(f"Network Points:             {quote.network_points_count}")
         #Doesn't write switch if there were no points selected 
         if quote.network_points_count > 0:
             f.write(" (+ Network Switch)\n")
@@ -688,16 +686,20 @@ def save_formatted_quote(quote: Quote):
         #Writes the cost summary section using the values calculated before
         f.write("Cost Summary\n")
         f.write("-" * 40 + "\n")
-        f.write(f"Upgrades (excl. GST):   ${costs['cost_upgrades']:,.2f}\n")
-        f.write(f"GST on Upgrades (15%):  ${costs['cost_gst']:,.2f}\n")
-        f.write(f"Base Kit Cost:          ${BASIC_KIT:,.2f}\n")
+        f.write(f"Upgrades (excl. GST):       ${costs['cost_upgrades']:,.2f}\n")
+        f.write(f"Base Kit (excl GST):        ${costs['cost_base']:,.2f}\n\n")
+
+        f.write(f"Subtotal of Build:          ${costs['initial_cost_of_build']:,.2f}\n")
+        f.write(f"GST on Build (15%):         ${costs['cost_gst']:,.2f}\n")
         #Will only write the discount line if trade member
         if quote.customer.is_trade:
-            f.write(f"Trade Discount (10%):   -${costs['discount_amount']:,.2f}\n")
+            f.write(f"Trade Discount (10%):      -${costs['discount_amount']:,.2f}\n")
         f.write("\n")
-        f.write(f"Total (incl. GST):      ${costs['final_total']:,.2f}\n")
+        f.write(f"Total (incl. GST):          ${costs['final_total']:,.2f}\n")
         f.write("-" * 65 + "\n")
         f.write("Thank you for choosing Waimak Build Co\n")
+
+
 
     #Confirms with the user the quote has been saved and gives them the filename
     print(f"\nThe quote saved as: {filename}, you can open this file and print it if needed ")
