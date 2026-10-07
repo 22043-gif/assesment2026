@@ -88,7 +88,7 @@ class Quote:
     """
     def __init__(self, customer: Person, bathroom_option: int, 
                  kitchen_option: int, livingroom_option: int, heatpump_living: bool, 
-                 heatpump_bedroom: bool, socket_1g_count: int, socket_2g_count: int,
+                 heatpump_bedroom: bool, rooms: dict,
                  network_points_count: int, ref_number: str = None):
         """
         Initialises a new instant of the class Quote with the users option selection and
@@ -101,8 +101,7 @@ class Quote:
             livingroom_option (int): Selected upgrade for living room 
             heatpump_living (bool): True if living room heat pump selected, fFalse otherwise
             heatpump_bedroom (bool): True if bedroom heat pump selected, False otherwise
-            socket_1g_count (int): Number of additional 1G electrical sockets
-            socket_2g_count (int): Number of additional 2G electrical sockets
+            rooms (dict): Dictionary containing socket counts for each room
             network_points_count (int): Number of additional network points 
             ref_number (str, optional): Pre-existing reference ID when loading saved quotes. Defaults to None.    
         """
@@ -131,8 +130,7 @@ class Quote:
         self.heatpump_living = heatpump_living
         self.heatpump_bedroom = heatpump_bedroom
         
-        self.socket_1g_count = socket_1g_count
-        self.socket_2g_count = socket_2g_count
+        self.rooms = rooms
         self.network_points_count = network_points_count
 
     def calculate_cost_upgrades(self) -> float:
@@ -164,12 +162,10 @@ class Quote:
             total += PRICES["heatpump_bedroom"]
 
         #Socket upgrades
-        #Finds number of 1g sockets selected and multiplies by associated value per socket
-        #Added to total
-        total += self.socket_1g_count * PRICES["socket_1g"]
-        #Finds number of 2g sockets selected and multiplies by associated value per socket
-        #Added to total
-        total += self.socket_2g_count * PRICES["socket_2g"]
+        # Add socket costs from every room
+        for i in self.rooms.values():
+            total += i["sockets_1g"] * PRICES["socket_1g"]
+            total += i["sockets_2g"] * PRICES["socket_2g"]
 
         #Network upgrades
         #If user has selected additional points 
@@ -246,8 +242,7 @@ class Quote:
                 "livingroom_option": self.livingroom_option,
                 "heatpump_living": self.heatpump_living,
                 "heatpump_bedroom": self.heatpump_bedroom,
-                "socket_1g_count": self.socket_1g_count,
-                "socket_2g_count": self.socket_2g_count,
+                "rooms": self.rooms,
                 "network_points_count": self.network_points_count
             },
             "final_total": costs["final_total"]
@@ -286,33 +281,52 @@ class Quote:
         print("\nSelected Upgrades")
         print("-" * 30)
 
-        print(f"Bathroom:                        Option {self.bathroom_option}")
-        print(f"Kitchen:                         Option {self.kitchen_option}")
-        print(f"Living Room:                     Option {self.livingroom_option}")
+        print("\nBathroom: ")                       
+        print("-" * 20)
+        print(f"Option {self.bathroom_option}                         ${PRICES["bathroom"].get(self.bathroom_option, 0.0)}")
+        g1 = self.rooms["bathroom"]["sockets_1g"]
+        print(f"1G Sockets x {g1}                   ${g1 * PRICES["socket_1g"]}")
+        g2 = self.rooms["bathroom"]["sockets_2g"]
+        print(f"2G Sockets x {g2}                   ${g2 * PRICES["socket_2g"]}")
 
-        # Heat pumps
+        print("\nKitchen: ")                       
+        print("-" * 20)
+        print(f"Option {self.kitchen_option}                         ${PRICES["kitchen"].get(self.kitchen_option, 0.0)}")
+        g1 = self.rooms["kitchen"]["sockets_1g"]
+        print(f"1G Sockets x {g1}                   ${g1 * PRICES["socket_1g"]}")
+        g2 = self.rooms["kitchen"]["sockets_2g"]
+        print(f"2G Sockets x {g2}                   ${g2 * PRICES["socket_2g"]}")
+
+        print("\nLiving Room: ")                       
+        print("-" * 20)
+        print(f"Option {self.livingroom_option}                         ${PRICES["livingroom"].get(self.livingroom_option, 0.0)}")
+        g1 = self.rooms["living"]["sockets_1g"]
+        print(f"1G Sockets x {g1}                   ${g1 * PRICES["socket_1g"]}")
+        g2 = self.rooms["living"]["sockets_2g"]
+        print(f"2G Sockets x {g2}                   ${g2 * PRICES["socket_2g"]}")
         if self.heatpump_living:
-            print("Living Room Heat Pump:           Yes")
-        else:
-            print("Living Room Heat Pump:           No")
+            print(f"Living Room Heat Pump:           ${PRICES["heatpump_living"]}")
 
+        print("\nBedrooms: ")  
+        print("-" * 20)
+        g1 = self.rooms["bedroom1"]["sockets_1g"] + self.rooms["bedroom2"]["sockets_1g"]
+        print(f"1G Sockets x {g1}                   ${g1 * PRICES["socket_1g"]}")
+        g2 = self.rooms["bedroom1"]["sockets_2g"] + self.rooms["bedroom2"]["sockets_2g"]
+        print(f"2G Sockets x {g2}                   ${g2 * PRICES["socket_2g"]}")
         if self.heatpump_bedroom:
-            print("Bedroom Heat Pump:               Yes")
-        else:
-            print("Bedroom Heat Pump:               No")
-
-        # Sockets
-        print(f"Extra 1G Sockets:                x {self.socket_1g_count}")
-        print(f"Extra 2G Sockets:                x {self.socket_2g_count}")
+            print(f"Bedroom Heat Pump:               ${PRICES["heatpump_bedroom"]}")
 
         # Network
+        print(f"\nNetwork:")
+        print("-" * 20)
         if self.network_points_count > 0:
-            print(f"Network Points:                  x {self.network_points_count} + switch")
+            print(f"Network points x {self.network_points_count}                ${self.network_points_count * PRICES["network_point"]}")
+            print(f"Switch                            ${PRICES["network_switch"]}")
         else:
-            print("Network Points:                   0")
+            print("Network Points x 0                $0")
     
         #Cost summary
-        print("\nCost Summary - ")
+        print("\nCost Summary ")
         print("-" * 30)
         print(f"Upgrades Subtotal (excl. GST):   ${costs['cost_upgrades']:,.2f}")
         print(f"Base Kit Subtotal (excl GST):    ${costs['cost_base']:,.2f}")
@@ -395,7 +409,7 @@ def get_valid_int(prompt: str, min_val: int = 0, max_val: int = None) -> int:
             #Reject if value is higher than maximum, if one is defined
             #If no maximum defined, not caught
             elif max_val is not None and val > max_val:
-                print(f"Try again, must be a whole number >/= {min_val} and </= {max_val}")
+                print(f"Try again, must be a whole number, {min_val} - {max_val}")
             #Meets criteria 
             else:
                 #A validated integer is returned
@@ -564,29 +578,49 @@ def get_build_details() -> tuple:
         return None
 
     print("\nSocket Upgrades - ")
-    #Using dictionary to give the corresponding price  
-    #Uses validation function to get an integer, corresponding to number of 1g sockets
-    print(f"Ýou can add up 12 sockets total, this is including 1G +${PRICES['socket_1g']:,.2f} ea, and 2G +${PRICES['socket_2g']:,.2f} ea")
-    socket_1g_count = get_valid_int(f"How many extra 1G sockets would you like: ", min_val=0, max_val=12)
-    if socket_1g_count is None:
-        return None
 
-    #They are allowed maximum of 12 sockets total
-    #Number of 2g sockets allowed calculated from previous input of 1g sockets
-    remaining_allowed = 12 - socket_1g_count
-    #If they ordered less than 12 1g sockets
-    if remaining_allowed > 0:
-        #Prints the maximum amount they can order
-        print(f"(You can add up to {remaining_allowed} extra 2G sockets)")
-        #Uses the value in the range to ensure they can't add too many
-        socket_2g_count = get_valid_int(f"How many extra 2G sockets would you like: ", min_val=0, max_val=remaining_allowed)
-        if socket_2g_count is None:
+    rooms = {
+        "bathroom":  {"sockets_1g": 0, "sockets_2g": 0},
+        "kitchen":   {"sockets_1g": 0, "sockets_2g": 0},
+        "living":    {"sockets_1g": 0, "sockets_2g": 0},
+        "bedroom1":  {"sockets_1g": 0, "sockets_2g": 0},
+        "bedroom2":  {"sockets_1g": 0, "sockets_2g": 0}
+    }
+
+    total_sockets = 0
+
+    print(f"Ýou can add a total of 12 sockets, with a maximum of 4 in each room ")
+    print(f"Toal is sum of 1G +${PRICES['socket_1g']:,.2f} ea, and 2G +${PRICES['socket_2g']:,.2f} ea")
+
+    for room_name in rooms:
+
+        if total_sockets >= 12:
+            print("\nMaximum of 12 sockets reached, no more can be added.")
+            break 
+
+        remaining = 12 - total_sockets
+        max_room = min(4, remaining)
+
+        print(f"\n{room_name.title()} sockets - you have {remaining} left")
+
+        g1 = get_valid_int(f"How many 1G sockets would you like (0-4): ", min_val=0, max_val=max_room)
+        if g1 is None:
             return None
-    
-    #If they order 12 1g sockets, can't order any 2g therefore set to 0
-    else:
-        print(f"Sorry, you cannot add any 2G as you have reached the maximum number of sockets")
-        socket_2g_count = 0
+
+        left = max_room - g1
+        if left > 0:
+            print(f"(You can add up to {left} extra 2G sockets)")
+            g2 = get_valid_int(f"How many 2G sockets would you like: ", min_val=0, max_val=left)
+            if g2 is None:
+                return None
+        else:
+            print("Sorry, you cannot add any 2G,reached the maximum number of sockets per room")
+            g2 = 0
+
+        rooms[room_name]["sockets_1g"] = g1
+        rooms[room_name]["sockets_2g"] = g2
+        total_sockets += g1 + g2
+
 
     print("\nNetwork Upgrades - ")
     #If the customer adds network points, they will need a switch in the build
@@ -608,7 +642,7 @@ def get_build_details() -> tuple:
     print()
 
     #All the upgrade options are returned as a tuple to be used for quote
-    return bathroom_option, kitchen_option, livingroom_option, heatpump_living, heatpump_bedroom, socket_1g_count, socket_2g_count, network_points_count
+    return bathroom_option, kitchen_option, livingroom_option, heatpump_living, heatpump_bedroom, rooms, network_points_count
            
 #Function for returning stored data
 def view_saved_quotes(quotes_data: list):
@@ -654,37 +688,78 @@ def save_formatted_quote(quote: Quote):
         f.write("Phone: 03 1234567\n")
         f.write("Email: Office@wbc.co.nz\n\n")
         f.write("-" * 65 + "\n\n")
+    
 
         #Writes customers personal input and reference number
-        f.write(f"Quote Reference:      {quote.ref_number}\n")
-        f.write(f"Date Generated:       {datetime.datetime.now().strftime('%d/%m/%Y')}\n\n")
+        f.write(f"Quote Reference:          {quote.ref_number}\n")
+        f.write(f"Date Generated:           {datetime.datetime.now().strftime('%d/%m/%Y')}\n\n")
         f.write("Customer Details\n")
-        f.write("-" * 40 + "\n")
-        f.write(f"Name:                 {quote.customer.name}\n")
-        f.write(f"Phone:                {quote.customer.phone}\n")
-        f.write(f"Address:              {quote.customer.address}\n")
-        f.write(f"Trade Account:        {'Yes (10% Discount)' if quote.customer.is_trade else 'No'}\n\n")
+        f.write("-" * 40 + "\n")    
+        f.write(f"Name:                     {quote.customer.name}\n")
+        f.write(f"Phone:                    {quote.customer.phone}\n")
+        f.write(f"Address:                  {quote.customer.address}\n")
+        f.write(f"Trade Account:            {'Yes (10% Discount)' if quote.customer.is_trade else 'No'}\n\n")
     
         #Writes the section showing all upgrades the customer selected 
         f.write("Selected Upgrades\n")
         f.write("-" * 40 + "\n")
-        f.write(f"Bathroom:                   Option {quote.bathroom_option}\n")
-        f.write(f"Kitchen:                    Option {quote.kitchen_option}\n")
-        f.write(f"Living Room:                Option {quote.livingroom_option}\n")
-        f.write(f"Living Room Heat Pump:      {'Yes' if quote.heatpump_living else 'No'}\n")
-        f.write(f"Bedroom Heat Pump:          {'Yes' if quote.heatpump_bedroom else 'No'}\n")
-        f.write(f"Extra 1G Sockets:           {quote.socket_1g_count}\n")
-        f.write(f"Extra 2G Sockets:           {quote.socket_2g_count}\n")
-        f.write(f"Network Points:             {quote.network_points_count}")
-        #Doesn't write switch if there were no points selected 
+        
+        #Bathroom
+        f.write("Bathroom:\n")
+        f.write("-" * 30 + "\n")
+        f.write(f"Option {quote.bathroom_option}                  "
+                f"${PRICES['bathroom'].get(quote.bathroom_option, 0.0)}\n")
+        g1 = quote.rooms["bathroom"]["sockets_1g"]
+        f.write(f"1G Sockets x {g1}                   ${g1 * PRICES['socket_1g']}\n")
+        g2 = quote.rooms["bathroom"]["sockets_2g"]
+        f.write(f"2G Sockets x {g2}                   ${g2 * PRICES['socket_2g']}\n")
+
+        #Kitchen
+        f.write("\nKitchen:\n")
+        f.write("-" * 30 + "\n")
+        f.write(f"Option {quote.kitchen_option}                  "
+                f"${PRICES['kitchen'].get(quote.kitchen_option, 0.0)}\n")
+        g1 = quote.rooms["kitchen"]["sockets_1g"]
+        f.write(f"1G Sockets x {g1}                   ${g1 * PRICES['socket_1g']}\n")
+        g2 = quote.rooms["kitchen"]["sockets_2g"]
+        f.write(f"2G Sockets x {g2}                   ${g2 * PRICES['socket_2g']}\n")
+
+        #Living Room
+        f.write("\nLiving Room:\n")
+        f.write("-" * 30 + "\n")
+        f.write(f"Option {quote.livingroom_option}                  "
+                f"${PRICES['livingroom'].get(quote.livingroom_option, 0.0)}\n")
+        g1 = quote.rooms["living"]["sockets_1g"]
+        f.write(f"1G Sockets x {g1}                   ${g1 * PRICES['socket_1g']}\n")
+        g2 = quote.rooms["living"]["sockets_2g"]
+        f.write(f"2G Sockets x {g2}                   ${g2 * PRICES['socket_2g']}\n")
+        if quote.heatpump_living:
+            f.write(f"Living Room Heat Pump:           ${PRICES['heatpump_living']}\n")
+
+        # Bedrooms
+        f.write("\nBedrooms:\n")
+        f.write("-" * 30 + "\n")
+        g1 = (quote.rooms["bedroom1"]["sockets_1g"] +
+              quote.rooms["bedroom2"]["sockets_1g"])
+        f.write(f"1G Sockets x {g1}                   ${g1 * PRICES['socket_1g']}\n")
+        g2 = (quote.rooms["bedroom1"]["sockets_2g"] +
+              quote.rooms["bedroom2"]["sockets_2g"])
+        f.write(f"2G Sockets x {g2}                   ${g2 * PRICES['socket_2g']}\n")
+        if quote.heatpump_bedroom:
+            f.write(f"Bedroom Heat Pump:               ${PRICES['heatpump_bedroom']}\n")
+
+        # Network
+        f.write("\nNetwork:\n")
+        f.write("-" * 30 + "\n")
         if quote.network_points_count > 0:
-            f.write(" (+ Network Switch)\n")
+            f.write(f"Network points x {quote.network_points_count}                ${quote.network_points_count * PRICES["network_point"]}\n")
+            f.write(f"Switch                            ${PRICES["network_switch"]}\n")
         else:
-            f.write("\n")
-        f.write("\n")
+            f.write("Network Points x 0                $0\n")
+
 
         #Writes the cost summary section using the values calculated before
-        f.write("Cost Summary\n")
+        f.write("\nCost Summary\n")
         f.write("-" * 40 + "\n")
         f.write(f"Upgrades (excl. GST):       ${costs['cost_upgrades']:,.2f}\n")
         f.write(f"Base Kit (excl GST):        ${costs['cost_base']:,.2f}\n\n")
@@ -749,8 +824,7 @@ def main():
              livingroom_option, 
              heatpump_living, 
              heatpump_bedroom, 
-             socket_1g_count, 
-             socket_2g_count, 
+             rooms, 
              network_points_count) = build_details
 
             #Instantiates a new Quote object using collected user inputs
@@ -760,8 +834,7 @@ def main():
                               livingroom_option, 
                               heatpump_living, 
                               heatpump_bedroom, 
-                              socket_1g_count, 
-                              socket_2g_count, 
+                              rooms, 
                               network_points_count)
 
             #Displays the financial details of Quote object
