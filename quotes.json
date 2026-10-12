@@ -1,0 +1,42 @@
+[
+  {
+    "ref_number": "ALI12102026",
+    "customer": {
+      "name": "Alice",
+      "phone": "234575645",
+      "address": "8978 Place",
+      "is_trade": true
+    },
+    "options": {
+      "bathroom_option": 0,
+      "kitchen_option": 3,
+      "livingroom_option": 1,
+      "heatpump_living": true,
+      "heatpump_bedroom": false,
+      "rooms": {
+        "bathroom": {
+          "sockets_1g": 2,
+          "sockets_2g": 1
+        },
+        "kitchen": {
+          "sockets_1g": 1,
+          "sockets_2g": 0
+        },
+        "living": {
+          "sockets_1g": 2,
+          "sockets_2g": 1
+        },
+        "bedroom1": {
+          "sockets_1g": 1,
+          "sockets_2g": 1
+        },
+        "bedroom2": {
+          "sockets_1g": 1,
+          "sockets_2g": 0
+        }
+      },
+      "network_points_count": 4
+    },
+    "final_total": 75793.05
+  }
+]

@@ -3,7 +3,8 @@
 #Programming Assessment 
 #“Waimak Build Co ” Quotation Creator
 
-#V2
+#This Program is a quotation maker for a building company
+#Users can makes, view, and save quotes
 
 #Libraries 
 
